@@ -41,7 +41,7 @@ location = /arcenal {
 location ^~ /arcenal/ {
     alias /var/www/arcenal-systeme/;
     index index.html;
-    try_files $uri $uri/ =404;
+    autoindex off;
 }
 NGINX
 }
