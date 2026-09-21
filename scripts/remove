@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source /usr/share/yunohost/helpers
+
+ynh_script_progression "Restauration du catalogue précédent..."
+if test -f "$YNH_APP_SETTING_PATH/catalogue-pre-arcenal.yml"; then
+    cp --preserve=mode,timestamps "$YNH_APP_SETTING_PATH/catalogue-pre-arcenal.yml" /etc/yunohost/apps_catalog.yml
+else
+    rm -f /etc/yunohost/apps_catalog.yml
+fi
+yunohost tools update apps
