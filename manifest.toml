@@ -4,7 +4,7 @@ id = "arcenal-systeme"
 name = "ARCenal Système"
 description.fr = "Configure le catalogue ARCenal stable sans modifier le cœur YunoHost."
 description.en = "Configures the ARCenal stable catalog without modifying YunoHost core."
-version = "0.1.1~ynh1"
+version = "0.1.2~ynh1"
 maintainers = ["ARCenal"]
 
 [upstream]
@@ -27,7 +27,7 @@ ram.runtime = "10M"
     ask.fr = "URL de base HTTPS du catalogue ARCenal stable"
     ask.en = "HTTPS base URL of the ARCenal stable catalog"
     type = "url"
-    default = "https://arcenal-coder.github.io/arcenal-systeme-catalogue/stable"
+    default = "https://raw.githubusercontent.com/arcenal-coder/arcenal-systeme-catalogue/main/stable"
 
 [resources]
     [resources.system_user]
