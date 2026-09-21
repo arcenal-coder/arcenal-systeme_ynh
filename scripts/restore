@@ -3,5 +3,3 @@
 source /usr/share/yunohost/helpers
 
 ynh_restore
-nginx -t || ynh_die "La configuration Nginx restaurée pour ARCenal est invalide."
-systemctl reload nginx

@@ -2,9 +2,9 @@
 packaging_format = 2
 id = "arcenal-systeme"
 name = "ARCenal Système"
-description.fr = "Active le catalogue contrôlé et le portail d'accueil ARCenal, sans modifier le cœur YunoHost."
-description.en = "Activates the controlled catalog and ARCenal welcome portal without changing YunoHost core."
-version = "0.2.1~ynh1"
+description.fr = "Configure le catalogue ARCenal contrôlé sans modifier le cœur YunoHost."
+description.en = "Configures the controlled ARCenal catalog without changing YunoHost core."
+version = "0.2.2~ynh1"
 maintainers = ["ARCenal"]
 
 [upstream]

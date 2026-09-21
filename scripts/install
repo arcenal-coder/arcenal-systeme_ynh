@@ -17,8 +17,4 @@ fi
 arcenal_ecrire_catalogue
 ynh_app_setting_set --key=catalogue_url --value="$catalogue_url"
 arcenal_actualiser_catalogue
-domaine="$(ynh_get_main_domain)"
-ynh_script_progression "Installation du portail ARCenal..."
-arcenal_activer_portail "$domaine"
-ynh_app_setting_set --key=domaine_portail --value="$domaine"
-ynh_script_progression "Catalogue ARCenal stable et portail activés."
+ynh_script_progression "Catalogue ARCenal stable activé."
