@@ -50,7 +50,12 @@ arcenal_activer_portail() {
     local domaine="$1"
     arcenal_ecrire_portail
     arcenal_ecrire_configuration_nginx "$domaine"
-    nginx -t || ynh_die "La configuration Nginx du portail ARCenal est invalide."
+    if ! nginx -t; then
+        rm -f "/etc/nginx/conf.d/${domaine}.d/${app}.conf"
+        rm -rf "/var/www/${app}"
+        nginx -t || ynh_die "Nginx était déjà invalide avant l'installation du portail ARCenal."
+        ynh_die "Le chemin /arcenal/ est déjà utilisé par une autre configuration Nginx."
+    fi
     systemctl reload nginx
 }
 
