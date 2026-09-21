@@ -6,11 +6,12 @@ source /usr/share/yunohost/helpers
 ynh_script_progression "Configuration du catalogue ARCenal..."
 arcenal_exiger_url_catalogue
 arcenal_verifier_catalogue
+catalogue_sauvegarde="/etc/yunohost/apps/${app}"
 
 if test -f /etc/yunohost/apps_catalog.yml; then
-    cp --preserve=mode,timestamps /etc/yunohost/apps_catalog.yml "$YNH_APP_SETTING_PATH/catalogue-pre-arcenal.yml"
+    cp --preserve=mode,timestamps /etc/yunohost/apps_catalog.yml "$catalogue_sauvegarde/catalogue-pre-arcenal.yml"
 else
-    touch "$YNH_APP_SETTING_PATH/catalogue-pre-arcenal.absent"
+    touch "$catalogue_sauvegarde/catalogue-pre-arcenal.absent"
 fi
 
 arcenal_ecrire_catalogue

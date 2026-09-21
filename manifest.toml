@@ -4,7 +4,7 @@ id = "arcenal-systeme"
 name = "ARCenal Système"
 description.fr = "Configure le catalogue ARCenal stable sans modifier le cœur YunoHost."
 description.en = "Configures the ARCenal stable catalog without modifying YunoHost core."
-version = "0.1.0~ynh1"
+version = "0.1.1~ynh1"
 maintainers = ["ARCenal"]
 
 [upstream]
