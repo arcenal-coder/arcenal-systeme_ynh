@@ -1,0 +1,12 @@
+#!/bin/bash
+
+source /usr/share/yunohost/helpers
+
+domaine="$(ynh_app_setting_get --key=domaine_portail)"
+ynh_backup "/etc/yunohost/apps/${app}"
+ynh_backup "/etc/yunohost/apps_catalog.yml"
+ynh_backup "/var/www/${app}" --not_mandatory
+
+if test -n "$domaine"; then
+    ynh_backup "/etc/nginx/conf.d/${domaine}.d/${app}.conf" --not_mandatory
+fi
