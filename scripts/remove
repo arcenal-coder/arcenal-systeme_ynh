@@ -2,6 +2,14 @@
 
 source /usr/share/yunohost/helpers
 
+source _common.sh
+
+ynh_script_progression "Retrait du portail ARCenal..."
+domaine="$(ynh_app_setting_get --key=domaine_portail)"
+if test -n "$domaine"; then
+    arcenal_retirer_portail "$domaine"
+fi
+
 ynh_script_progression "Restauration du catalogue précédent..."
 catalogue_sauvegarde="/etc/yunohost/apps/${app}"
 if test -f "$catalogue_sauvegarde/catalogue-pre-arcenal.yml"; then
