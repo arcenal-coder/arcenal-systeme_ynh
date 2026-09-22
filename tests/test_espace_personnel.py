@@ -36,6 +36,13 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn("prefers-color-scheme: dark", style)
         self.assertIn("applyTheme(configuration)", script)
 
+    def test_dashboard_uses_the_soft_blue_floating_card_design(self) -> None:
+        style = (ROOT / "www" / "arcenal.css").read_text(encoding="utf-8")
+        self.assertIn("--bleu", style)
+        self.assertIn("linear-gradient", style)
+        self.assertIn("border-radius: 28px", style)
+        self.assertIn("backdrop-filter: blur", style)
+
     def test_nginx_uses_the_private_dashboard_path(self) -> None:
         nginx = (ROOT / "conf" / "nginx.conf").read_text(encoding="utf-8")
         self.assertIn("location __PATH__/", nginx)
