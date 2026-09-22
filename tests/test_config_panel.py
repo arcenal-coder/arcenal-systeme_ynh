@@ -3,6 +3,7 @@ from __future__ import annotations
 import tomllib
 import unittest
 from pathlib import Path
+from subprocess import run
 
 
 ROOT = Path(__file__).parents[1]
@@ -54,6 +55,20 @@ class ConfigPanelTest(unittest.TestCase):
         self.assertIn("arcenal_modifier_couleur brand_primary", script)
         self.assertIn("arcenal_modifier_couleur brand_accent", script)
         self.assertIn('test -n "$valeur" || return 0', script)
+
+    def test_color_getters_return_a_yaml_scalar(self) -> None:
+        command = f'''ynh_app_setting_get() {{ printf '%s' '#842F47'; }}
+source "{ROOT / "scripts" / "_common.sh"}"
+arcenal_lire_couleur_yaml brand_primary '#202229' '''
+        result = run(["bash", "-c", command], check=True, capture_output=True, text=True)
+        self.assertEqual(result.stdout, '"#842F47"')
+
+    def test_invalid_saved_color_uses_the_safe_default_in_the_panel(self) -> None:
+        command = f'''ynh_app_setting_get() {{ printf '%s' 'not-a-colour'; }}
+source "{ROOT / "scripts" / "_common.sh"}"
+arcenal_lire_couleur_yaml brand_primary '#202229' '''
+        result = run(["bash", "-c", command], check=True, capture_output=True, text=True)
+        self.assertEqual(result.stdout, '"#202229"')
 
     def test_configuration_does_not_need_the_temporary_package_sources(self) -> None:
         script = (ROOT / "scripts" / "config").read_text(encoding="utf-8")

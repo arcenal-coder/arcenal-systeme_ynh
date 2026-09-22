@@ -41,6 +41,8 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn("--bleu", style)
         self.assertIn("--couleur-dominante", style)
         self.assertIn("--couleur-accent", style)
+        self.assertIn("color-mix(in srgb, var(--couleur-dominante)", style)
+        self.assertIn("color-mix(in srgb, var(--couleur-accent)", style)
         self.assertIn("linear-gradient", style)
         self.assertIn("border-radius: 28px", style)
         self.assertIn("backdrop-filter: blur", style)

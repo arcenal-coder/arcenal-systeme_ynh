@@ -10,8 +10,8 @@ get__portal_title() { arcenal_lire_reglage portal_title; }
 get__portal_theme() { arcenal_lire_reglage portal_theme; }
 get__portal_tile_theme() { arcenal_lire_reglage portal_tile_theme; }
 get__portal_layout() { arcenal_lire_reglage portal_layout; }
-get__brand_primary() { arcenal_lire_reglage brand_primary; }
-get__brand_accent() { arcenal_lire_reglage brand_accent; }
+get__brand_primary() { arcenal_lire_couleur_yaml brand_primary "#202229"; }
+get__brand_accent() { arcenal_lire_couleur_yaml brand_accent "#842F47"; }
 get__portal_user_intro() { arcenal_lire_reglage portal_user_intro; }
 get__portal_public_intro() { arcenal_lire_reglage portal_public_intro; }
 get__portal_logo() { echo YNH_NULL; }
@@ -31,6 +31,7 @@ arcenal_modifier_couleur() {
     local cle="$1"
     local valeur="$2"
     test -n "$valeur" || return 0
+    [[ "$valeur" =~ ^#[[:xdigit:]]{6}$ ]] || ynh_die "La couleur doit être exprimée au format #RRGGBB."
     arcenal_modifier_reglage "$cle" "$valeur"
 }
 

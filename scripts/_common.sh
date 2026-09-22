@@ -13,6 +13,15 @@ arcenal_enregistrer_reglage() {
     ynh_app_setting_set --key="$cle" --value="$valeur"
 }
 
+arcenal_lire_couleur_yaml() {
+    local cle="$1"
+    local defaut="$2"
+    local valeur
+    valeur="$(arcenal_lire_reglage "$cle")"
+    [[ "$valeur" =~ ^#[[:xdigit:]]{6}$ ]] || valeur="$defaut"
+    printf '"%s"' "$valeur"
+}
+
 arcenal_domaine_portail_par_defaut() {
     yunohost domain list --exclude-subdomains --output-as json | python3 -c '
 import json
