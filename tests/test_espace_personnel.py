@@ -49,6 +49,20 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn("alias __INSTALL_DIR__/;", nginx)
         self.assertNotIn("location /yunohost", nginx)
 
+    def test_manifest_declares_the_dashboard_as_a_native_web_application(self) -> None:
+        manifest = (ROOT / "manifest.toml").read_text(encoding="utf-8")
+        self.assertIn("[install.domain]", manifest)
+        self.assertIn('default = "/espace-perso"', manifest)
+        self.assertIn("[resources.permissions]", manifest)
+        self.assertIn("main.url = \"/\"", manifest)
+
+    def test_system_requires_the_store_without_overriding_its_permission(self) -> None:
+        common = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
+        install = (ROOT / "scripts" / "install").read_text(encoding="utf-8")
+        self.assertIn("test -d /etc/yunohost/apps/arcenal-store", common)
+        self.assertIn("arcenal_exiger_store", install)
+        self.assertNotIn("ynh_permission_url", common)
+
     def test_scripts_deploy_the_dashboard_without_touching_yunohost_core(self) -> None:
         common = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
         self.assertIn("arcenal_deployer_espace", common)

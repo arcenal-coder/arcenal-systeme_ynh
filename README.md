@@ -1,7 +1,8 @@
 # ARCenal Système pour YunoHost
 
-Ce paquet unique configure un YunoHost pour consommer le catalogue ARCenal
-stable et fournit l'espace personnel `/espace-perso`.
+Ce paquet fournit l'espace personnel ARCenal `/espace-perso`. Le catalogue est
+installé séparément par le paquet ARCenal Store afin de garder le parcours
+administrateur simple et fiable.
 
 L'espace s'appuie sur l'authentification native YunoHost : il ne stocke aucun
 mot de passe ni aucune liste d'accès propre. Après connexion, il affiche le
@@ -15,13 +16,9 @@ propre fragment Nginx avec le helper officiel YunoHost afin de servir
 
 ## Installation
 
-```sh
-sudo yunohost app install https://github.com/arcenal-coder/arcenal-systeme_ynh
-```
-
-L'installateur vérifie l'accessibilité HTTPS du catalogue, sauvegarde la
-configuration précédente, active le catalogue ARCenal puis actualise le cache.
-La désinstallation restaure la configuration de catalogue sauvegardée.
+Après avoir installé ARCenal Store, recherchez « ARCenal Système » dans
+**Applications → Installer une app**, choisissez le domaine racine et laissez
+le chemin proposé `/espace-perso`.
 
 ## Utilisation
 
@@ -36,7 +33,12 @@ modifier l'identité du portail natif et le contenu de la dernière nouvelle.
 Le point d'entrée technique `/yunohost/sso/` reste nécessaire à la connexion
 native et ne doit pas être supprimé.
 
-### Migration depuis une version antérieure à 0.5
+### Migration depuis une version antérieure à 0.6
+
+Avant de mettre à jour une ancienne installation, installez d'abord ARCenal
+Store. La version 0.6 et les suivantes vérifient volontairement sa présence,
+afin que le catalogue et l'espace personnel ne puissent plus être séparés par
+erreur.
 
 Les installations déjà rebrandées par une version antérieure ne possèdent pas
 d'instantané de leur identité visuelle d'origine. À partir de la version 0.5,

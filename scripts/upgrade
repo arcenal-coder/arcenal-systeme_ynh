@@ -4,12 +4,8 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 ynh_script_progression "Mise à jour de la configuration ARCenal..."
-arcenal_exiger_url_catalogue
-arcenal_verifier_catalogue
-arcenal_ecrire_catalogue
-ynh_app_setting_set --key=catalogue_url --value="$catalogue_url"
+arcenal_exiger_store
 arcenal_initialiser_identite
 ynh_script_progression "Mise à jour de l'espace personnel ARCenal..."
 arcenal_deployer_espace
-arcenal_actualiser_catalogue
 ynh_script_progression "Configuration ARCenal mise à jour."

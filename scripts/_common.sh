@@ -1,24 +1,5 @@
 #!/bin/bash
 
-arcenal_exiger_url_catalogue() {
-    [[ "$catalogue_url" =~ ^https://[^[:space:]]+$ ]] || ynh_die "Le catalogue ARCenal doit utiliser une URL HTTPS."
-}
-
-arcenal_verifier_catalogue() {
-    curl --fail --silent --show-error "${catalogue_url}/v3/apps.json" > /dev/null || ynh_die "Le catalogue ARCenal est indisponible ou invalide."
-}
-
-arcenal_ecrire_catalogue() {
-    cat > /etc/yunohost/apps_catalog.yml <<YAML
-- id: arcenal
-  url: ${catalogue_url}
-YAML
-}
-
-arcenal_actualiser_catalogue() {
-    yunohost tools update apps
-}
-
 arcenal_lire_reglage() {
     local cle="$1"
     local valeur
@@ -53,10 +34,10 @@ raise SystemExit(0 if sys.argv[1] in json.load(sys.stdin)["domains"] else 1)
 }
 
 arcenal_initialiser_identite() {
-    local domaine_defaut domaine_portail
-    domaine_defaut="$(arcenal_domaine_portail_par_defaut)"
+    local domaine_portail
+    arcenal_domaine_portail_est_racine "$domain" || ynh_die "ARCenal Système doit être installé sur un domaine racine YunoHost."
     domaine_portail="$(arcenal_lire_reglage portal_domain)"
-    arcenal_domaine_portail_est_racine "$domaine_portail" || arcenal_enregistrer_reglage portal_domain "$domaine_defaut"
+    test "$domaine_portail" = "$domain" || arcenal_enregistrer_reglage portal_domain "$domain"
     test -n "$(arcenal_lire_reglage portal_title)" || arcenal_enregistrer_reglage portal_title "ARCenal OS"
     test -n "$(arcenal_lire_reglage portal_theme)" || arcenal_enregistrer_reglage portal_theme "light"
     test -n "$(arcenal_lire_reglage portal_tile_theme)" || arcenal_enregistrer_reglage portal_tile_theme "descriptive"
@@ -154,6 +135,10 @@ arcenal_repertoire_espace() {
     printf '/var/www/%s' "$app"
 }
 
+arcenal_exiger_store() {
+    test -d /etc/yunohost/apps/arcenal-store || ynh_die "Installez d'abord ARCenal Store, puis relancez l'installation d'ARCenal Système depuis le catalogue ARCenal."
+}
+
 arcenal_ecrire_configuration_espace() {
     local repertoire fichier titre contenu lien theme
     repertoire="$(arcenal_repertoire_espace)"
@@ -184,22 +169,8 @@ arcenal_copier_espace() {
     install -m 0644 "${YNH_APP_BASEDIR}/www/logo-arcenal.svg" "$repertoire/logo-arcenal.svg"
 }
 
-arcenal_configurer_permission_espace() {
-    local domaine url
-    domaine="$(arcenal_lire_reglage portal_domain)"
-    url="${domaine}/espace-perso"
-    if ynh_permission_exists --permission=main; then
-        ynh_permission_url --permission=main --url="$url"
-        ynh_permission_update --permission=main --add=all_users
-        return 0
-    fi
-    ynh_permission_create --permission=main --url="$url" --allowed=all_users --show_tile=false
-}
-
 arcenal_configurer_nginx_espace() {
-    local domain path install_dir
-    domain="$(arcenal_lire_reglage portal_domain)"
-    path="/espace-perso"
+    local install_dir
     install_dir="$(arcenal_repertoire_espace)"
     ynh_config_add_nginx
 }
@@ -215,6 +186,5 @@ arcenal_retirer_nginx_espace() {
 arcenal_deployer_espace() {
     arcenal_copier_espace
     arcenal_ecrire_configuration_espace
-    arcenal_configurer_permission_espace
     arcenal_configurer_nginx_espace
 }

@@ -3,21 +3,8 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
-ynh_script_progression "Configuration du catalogue ARCenal..."
-arcenal_exiger_url_catalogue
-arcenal_verifier_catalogue
-catalogue_sauvegarde="/etc/yunohost/apps/${app}"
-
-if test -f /etc/yunohost/apps_catalog.yml; then
-    cp --preserve=mode,timestamps /etc/yunohost/apps_catalog.yml "$catalogue_sauvegarde/catalogue-pre-arcenal.yml"
-else
-    touch "$catalogue_sauvegarde/catalogue-pre-arcenal.absent"
-fi
-
-arcenal_ecrire_catalogue
-ynh_app_setting_set --key=catalogue_url --value="$catalogue_url"
+ynh_script_progression "Configuration de l'espace personnel ARCenal..."
+arcenal_exiger_store
 arcenal_initialiser_identite
-ynh_script_progression "Déploiement de l'espace personnel ARCenal..."
 arcenal_deployer_espace
-arcenal_actualiser_catalogue
-ynh_script_progression "Catalogue ARCenal stable activé."
+ynh_script_progression "Espace personnel ARCenal activé."

@@ -4,7 +4,6 @@ source _common.sh
 source /usr/share/yunohost/helpers
 
 ynh_backup "/etc/yunohost/apps/${app}"
-ynh_backup "/etc/yunohost/apps_catalog.yml"
 repertoire="$(arcenal_repertoire_espace)"
 nginx="/etc/nginx/conf.d/$(arcenal_lire_reglage portal_domain).d/${app}.conf"
 test ! -e "$repertoire" || ynh_backup "$repertoire"

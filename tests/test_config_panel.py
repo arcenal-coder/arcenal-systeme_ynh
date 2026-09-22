@@ -3,17 +3,16 @@ from __future__ import annotations
 import tomllib
 import unittest
 from pathlib import Path
-from subprocess import run
 
 
 ROOT = Path(__file__).parents[1]
 
 
 class ConfigPanelTest(unittest.TestCase):
-    def test_identity_panel_uses_native_domain_options(self) -> None:
+    def test_identity_panel_uses_native_portal_options(self) -> None:
         panel = tomllib.loads((ROOT / "config_panel.toml").read_text(encoding="utf-8"))
         portal = panel["identite"]["portail"]
-        self.assertEqual(portal["portal_domain"]["type"], "domain")
+        self.assertNotIn("portal_domain", portal)
         self.assertEqual(portal["portal_logo"]["type"], "file")
         self.assertEqual(
             portal["portal_logo"]["accept"],
@@ -55,21 +54,11 @@ class ConfigPanelTest(unittest.TestCase):
         self.assertIn("arcenal_modifier_couleur brand_accent", script)
         self.assertIn('test -n "$valeur" || return 0', script)
 
-    def test_portal_domain_uses_root_domains(self) -> None:
+    def test_install_domain_must_be_a_root_domain(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
         self.assertIn("yunohost domain list --exclude-subdomains --output-as json", script)
         self.assertIn('json.load(sys.stdin)["domains"]', script)
-
-    def test_subdomain_is_repaired_to_a_root_domain(self) -> None:
-        command = f'''source "{ROOT / "scripts" / "_common.sh"}"
-stored_domain="mail.onyx-ingenierie.com"
-yunohost() {{ printf '%s\n' '{{"domains":["onyx-ingenierie.com"]}}'; }}
-ynh_app_setting_get() {{ printf '%s' "$stored_domain"; }}
-ynh_app_setting_set() {{ stored_domain="$(printf '%s' "$2" | cut -d= -f2)"; }}
-arcenal_initialiser_identite
-printf '%s' "$stored_domain"'''
-        result = run(["bash", "-c", command], check=True, capture_output=True, text=True)
-        self.assertEqual(result.stdout, "onyx-ingenierie.com")
+        self.assertIn('arcenal_domaine_portail_est_racine "$domain"', script)
 
 
 if __name__ == "__main__":
