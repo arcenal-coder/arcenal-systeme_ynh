@@ -6,7 +6,6 @@ source /usr/share/yunohost/helpers
 ynh_abort_if_errors
 arcenal_initialiser_identite
 
-get__portal_domain() { arcenal_lire_reglage portal_domain; }
 get__portal_title() { arcenal_lire_reglage portal_title; }
 get__portal_theme() { arcenal_lire_reglage portal_theme; }
 get__portal_tile_theme() { arcenal_lire_reglage portal_tile_theme; }
@@ -35,15 +34,6 @@ arcenal_modifier_couleur() {
     arcenal_modifier_reglage "$cle" "$valeur"
 }
 
-set__portal_domain() {
-    local domaine_precedent
-    domaine_precedent="$(arcenal_lire_reglage portal_domain)"
-    arcenal_restaurer_identite_portail "$domaine_precedent"
-    arcenal_enregistrer_reglage portal_domain "$portal_domain"
-    arcenal_retirer_nginx_espace "$domaine_precedent"
-    arcenal_appliquer_identite
-    arcenal_deployer_espace
-}
 set__portal_title() { arcenal_modifier_reglage portal_title "$portal_title"; }
 set__portal_theme() { arcenal_modifier_reglage portal_theme "$portal_theme"; }
 set__portal_tile_theme() { arcenal_modifier_reglage portal_tile_theme "$portal_tile_theme"; }
@@ -61,9 +51,5 @@ set__portal_logo() {
 set__dashboard_news_title() { arcenal_modifier_reglage dashboard_news_title "$dashboard_news_title"; }
 set__dashboard_news_content() { arcenal_modifier_reglage dashboard_news_content "$dashboard_news_content"; }
 set__dashboard_news_url() { arcenal_modifier_reglage dashboard_news_url "$dashboard_news_url"; }
-
-validate__portal_domain() {
-    arcenal_domaine_portail_est_racine "$portal_domain" || echo "Choisissez un domaine racine YunoHost."
-}
 
 ynh_app_config_run "$1"
