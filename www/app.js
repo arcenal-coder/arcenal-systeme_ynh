@@ -117,8 +117,18 @@ async function initializeDashboard() {
   }
 }
 
-function logout() {
-  window.location.assign("/espace-perso/deconnexion");
+async function logout() {
+  const button = element("deconnexion");
+  button.disabled = true;
+  try {
+    const response = await fetch(`${apiBase}/logout`, { credentials: "include", cache: "no-store" });
+    if (!response.ok && response.status !== 401) throw new Error("Déconnexion impossible");
+    window.location.assign("/espace-perso/");
+  } catch (error) {
+    button.disabled = false;
+    element("etat-applications").hidden = false;
+    element("etat-applications").textContent = "La déconnexion n'a pas abouti. Réessayez dans un instant.";
+  }
 }
 
 element("deconnexion").addEventListener("click", logout);
