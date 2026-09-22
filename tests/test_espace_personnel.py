@@ -82,7 +82,9 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn("response.ok", script)
         self.assertIn("response.status !== 401", script)
         self.assertIn("La déconnexion n'a pas abouti", script)
-        self.assertIn('window.location.assign("/espace-perso/")', script)
+        self.assertIn('localStorage.setItem("isLoggedIn", "false")', script)
+        self.assertIn('window.btoa(`${window.location.origin}/espace-perso/`)', script)
+        self.assertIn('window.location.assign(`/yunohost/sso/?r=${encodeURIComponent(destination)}`)', script)
 
     def test_upgrade_backup_skips_resources_that_do_not_exist_yet(self) -> None:
         backup = (ROOT / "scripts" / "backup").read_text(encoding="utf-8")

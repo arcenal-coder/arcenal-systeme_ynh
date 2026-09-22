@@ -123,7 +123,9 @@ async function logout() {
   try {
     const response = await fetch(`${apiBase}/logout`, { credentials: "include", cache: "no-store" });
     if (!response.ok && response.status !== 401) throw new Error("Déconnexion impossible");
-    window.location.assign("/espace-perso/");
+    localStorage.setItem("isLoggedIn", "false");
+    const destination = window.btoa(`${window.location.origin}/espace-perso/`);
+    window.location.assign(`/yunohost/sso/?r=${encodeURIComponent(destination)}`);
   } catch (error) {
     button.disabled = false;
     element("etat-applications").hidden = false;
