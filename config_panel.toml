@@ -25,7 +25,7 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
         ask.fr = "Logo"
         help.fr = "SVG, PNG ou JPEG. Laissez vide pour conserver le logo actuel."
         type = "file"
-        accept = ".svg,.png,.jpg,.jpeg"
+        accept = ["image/svg+xml", "image/png", "image/jpeg"]
         optional = true
         bind = "null"
 

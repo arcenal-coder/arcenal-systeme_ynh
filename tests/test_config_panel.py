@@ -14,6 +14,10 @@ class ConfigPanelTest(unittest.TestCase):
         portal = panel["identite"]["portail"]
         self.assertEqual(portal["portal_domain"]["type"], "domain")
         self.assertEqual(portal["portal_logo"]["type"], "file")
+        self.assertEqual(
+            portal["portal_logo"]["accept"],
+            ["image/svg+xml", "image/png", "image/jpeg"],
+        )
         self.assertEqual(portal["portal_theme"]["choices"], ["light", "system", "dark"])
 
     def test_config_script_only_uses_supported_portal_settings(self) -> None:
