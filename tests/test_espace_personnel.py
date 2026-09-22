@@ -89,6 +89,12 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn('test ! -e "$repertoire" || ynh_backup "$repertoire"', backup)
         self.assertIn('test ! -e "$nginx" || ynh_backup "$nginx"', backup)
 
+    def test_lifecycle_scripts_load_their_common_file_from_any_directory(self) -> None:
+        scripts = ("install", "upgrade", "remove", "backup", "restore", "config")
+        for script_name in scripts:
+            script = (ROOT / "scripts" / script_name).read_text(encoding="utf-8")
+            self.assertIn('source "$(dirname "$0")/_common.sh"', script)
+
     def test_dashboard_configuration_escapes_administrator_content(self) -> None:
         with TemporaryDirectory() as temporary:
             command = f'''source "{ROOT / "scripts" / "_common.sh"}"
