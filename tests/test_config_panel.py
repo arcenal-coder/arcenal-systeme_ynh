@@ -23,9 +23,15 @@ class ConfigPanelTest(unittest.TestCase):
 
     def test_config_script_only_uses_supported_portal_settings(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
-        self.assertIn("feature.portal.portal_title", script)
-        self.assertIn("feature.portal.custom_css", script)
+        self.assertIn('domain config set "$domaine" --key feature.portal.portal_title', script)
+        self.assertIn('domain config set "$domaine" --key feature.portal.custom_css', script)
+        self.assertNotIn('domain config set "$domaine" feature.portal', script)
         self.assertNotIn("/etc/ssowat", script)
+
+    def test_blank_color_values_are_not_persisted(self) -> None:
+        script = (ROOT / "scripts" / "config").read_text(encoding="utf-8")
+        self.assertIn("arcenal_modifier_couleur brand_primary", script)
+        self.assertIn("arcenal_modifier_couleur brand_accent", script)
 
     def test_main_domain_is_read_from_json(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
