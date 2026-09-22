@@ -121,11 +121,15 @@ async function logout() {
   const button = element("deconnexion");
   try {
     button.disabled = true;
-    const response = await fetch(`${apiBase}/logout`, { credentials: "include", cache: "no-store" });
-    if (!response.ok) throw new Error("Déconnexion impossible");
+    const response = await fetch(`${apiBase}/logout`, {
+      credentials: "include",
+      cache: "no-store",
+      redirect: "manual",
+    });
+    if (response.status >= 400) throw new Error("Déconnexion impossible");
     const destination = `${window.location.origin}/espace-perso/`;
     const redirect = window.btoa(destination);
-    window.location.assign(`/yunohost/sso/login?r=${encodeURIComponent(redirect)}`);
+    window.location.replace(`/yunohost/sso/login?r=${encodeURIComponent(redirect)}`);
   } catch (_) {
     button.disabled = false;
     element("etat-applications").hidden = false;

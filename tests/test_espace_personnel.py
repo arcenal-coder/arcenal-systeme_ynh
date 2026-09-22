@@ -78,10 +78,11 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn("function applicationUrl", script)
         self.assertIn("function localizedDescription", script)
         self.assertNotIn('method: "POST"', script)
-        self.assertIn('fetch(`${apiBase}/logout`, { credentials: "include"', script)
-        self.assertIn("if (!response.ok) throw new Error", script)
+        self.assertIn('fetch(`${apiBase}/logout`, {', script)
+        self.assertIn('redirect: "manual"', script)
+        self.assertIn("if (response.status >= 400) throw new Error", script)
         self.assertIn("window.btoa(destination)", script)
-        self.assertIn("/yunohost/sso/login?r=${encodeURIComponent(redirect)}", script)
+        self.assertIn("window.location.replace(`/yunohost/sso/login?r=${encodeURIComponent(redirect)}`)", script)
         self.assertNotIn("finally", script)
 
     def test_upgrade_backup_skips_resources_that_do_not_exist_yet(self) -> None:
