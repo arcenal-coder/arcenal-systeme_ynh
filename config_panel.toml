@@ -42,6 +42,13 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
         choices = ["descriptive", "simple", "periodic"]
         bind = "null"
 
+        [identite.portail.portal_layout]
+        ask.fr = "Densité du portail"
+        help.fr = "Confortable privilégie la lisibilité ; compact affiche davantage d'applications à l'écran."
+        type = "select"
+        choices = ["confortable", "compact"]
+        bind = "null"
+
     [identite.marque]
     name.fr = "Couleurs ARCenal"
 

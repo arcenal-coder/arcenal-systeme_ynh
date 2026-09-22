@@ -20,13 +20,24 @@ class ConfigPanelTest(unittest.TestCase):
             ["image/svg+xml", "image/png", "image/jpeg"],
         )
         self.assertEqual(portal["portal_theme"]["choices"], ["light", "system", "dark"])
+        self.assertEqual(portal["portal_layout"]["choices"], ["confortable", "compact"])
 
     def test_config_script_only_uses_supported_portal_settings(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
         self.assertIn('domain config set "$domaine" feature.portal.portal_title', script)
         self.assertIn('domain config set "$domaine" feature.portal.custom_css', script)
+        self.assertIn("#app-tiles .app-tile", script)
+        self.assertIn("@media (prefers-reduced-motion: reduce)", script)
         self.assertNotIn('domain config set "$domaine" --key', script)
         self.assertNotIn("/etc/ssowat", script)
+
+    def test_portal_layout_is_persisted_and_applied(self) -> None:
+        script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
+        config = (ROOT / "scripts" / "config").read_text(encoding="utf-8")
+        self.assertIn('portal_layout "confortable"', script)
+        self.assertIn('arcenal_css_portail "$primaire" "$accent" "$mise_en_page"', script)
+        self.assertIn('get__portal_layout()', config)
+        self.assertIn('set__portal_layout()', config)
 
     def test_blank_color_values_are_not_persisted(self) -> None:
         script = (ROOT / "scripts" / "config").read_text(encoding="utf-8")
