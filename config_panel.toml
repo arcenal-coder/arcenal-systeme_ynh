@@ -74,3 +74,28 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
         ask.fr = "Message avant connexion"
         type = "text"
         bind = "null"
+
+    [identite.espace]
+    name.fr = "Espace personnel"
+    help.fr = "Ces informations apparaissent dans /espace-perso après connexion."
+
+        [identite.espace.dashboard_news_title]
+        ask.fr = "Titre de la dernière nouvelle"
+        type = "string"
+        bind = "null"
+        pattern.regexp = '^.{2,100}$'
+        pattern.error.fr = "Le titre doit contenir entre 2 et 100 caractères."
+
+        [identite.espace.dashboard_news_content]
+        ask.fr = "Contenu de la dernière nouvelle"
+        type = "text"
+        bind = "null"
+
+        [identite.espace.dashboard_news_url]
+        ask.fr = "Lien de la nouvelle"
+        help.fr = "Optionnel. Seuls les liens HTTPS sont acceptés."
+        type = "url"
+        optional = true
+        bind = "null"
+        pattern.regexp = '^$|^https://[^[:space:]]+$'
+        pattern.error.fr = "Utilisez une URL HTTPS ou laissez ce champ vide."

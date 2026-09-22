@@ -1,29 +1,52 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Espace d'accueil ARCenal Système">
-    <title>ARCenal Système</title>
+    <meta name="description" content="Espace personnel ARCenal">
+    <title>ARCenal — Espace personnel</title>
     <link rel="stylesheet" href="arcenal.css">
   </head>
   <body>
-    <main class="page">
-      <header class="entete">
-        <img class="logo" src="logo-arcenal.svg" alt="ARCenal">
-        <span class="badge">SYSTÈME</span>
-      </header>
-      <section class="hero" aria-labelledby="titre">
-        <p class="sur-titre">Votre espace numérique maîtrisé</p>
-        <h1 id="titre">Le système ARCenal est prêt.</h1>
-        <p class="introduction">Retrouvez vos services sélectionnés et accédez à l'administration technique de votre environnement en toute simplicité.</p>
-        <a class="action-principale" href="/yunohost/admin/">Ouvrir l'administration</a>
-      </section>
-      <section class="repere" aria-label="Fonctionnement ARCenal">
-        <article><span class="numero">01</span><h2>Applications sélectionnées</h2><p>Le catalogue ne présente que les outils validés par ARCenal.</p></article>
-        <article><span class="numero">02</span><h2>Mises à jour maîtrisées</h2><p>Les évolutions sont préparées et publiées par canal.</p></article>
-        <article><span class="numero">03</span><h2>Socle YunoHost préservé</h2><p>Le moteur standard reste compatible avec ses mises à jour.</p></article>
-      </section>
-    </main>
+    <div class="application" id="application" aria-busy="true">
+      <aside class="navigation" aria-label="Navigation principale">
+        <a class="marque" href="/espace-perso/" aria-label="Accueil ARCenal">
+          <img class="marque-logo" id="marque-logo" src="logo-arcenal.svg" alt="ARCenal">
+          <span class="marque-produit">SYSTÈME</span>
+        </a>
+        <nav class="liens-navigation">
+          <a class="lien-navigation actif" href="#applications">Mes applications</a>
+          <a class="lien-navigation administration" id="lien-administration" href="/yunohost/admin/" hidden>Administration</a>
+        </nav>
+        <button class="deconnexion" id="deconnexion" type="button">Se déconnecter</button>
+      </aside>
+      <main class="contenu" id="contenu" tabindex="-1">
+        <header class="entete">
+          <p class="fil-ariane">ESPACE PERSONNEL</p>
+          <h1 id="salutation">Bienvenue</h1>
+          <p class="sous-titre" id="introduction">Préparation de votre espace ARCenal…</p>
+        </header>
+        <section class="nouvelle" aria-labelledby="titre-nouvelle">
+          <div class="nouvelle-repere">DERNIÈRE NOUVELLE</div>
+          <div>
+            <h2 id="titre-nouvelle">Bienvenue dans ARCenal</h2>
+            <p id="contenu-nouvelle"></p>
+            <a class="nouvelle-lien" id="lien-nouvelle" href="" hidden>En savoir plus <span aria-hidden="true">→</span></a>
+          </div>
+        </section>
+        <section class="applications" id="applications" aria-labelledby="titre-applications">
+          <div class="titre-section">
+            <div>
+              <p class="fil-ariane">VOS SERVICES</p>
+              <h2 id="titre-applications">Mes applications</h2>
+            </div>
+            <p class="compteur" id="compteur-applications"></p>
+          </div>
+          <p class="etat" id="etat-applications" role="status">Chargement de vos applications…</p>
+          <ul class="grille-applications" id="liste-applications" aria-live="polite"></ul>
+        </section>
+      </main>
+    </div>
+    <script src="app.js"></script>
   </body>
 </html>

@@ -65,6 +65,9 @@ arcenal_initialiser_identite() {
     test -n "$(arcenal_lire_reglage brand_accent)" || arcenal_enregistrer_reglage brand_accent "#842F47"
     test -n "$(arcenal_lire_reglage portal_user_intro)" || arcenal_enregistrer_reglage portal_user_intro "Bienvenue dans votre espace ARCenal."
     test -n "$(arcenal_lire_reglage portal_public_intro)" || arcenal_enregistrer_reglage portal_public_intro "Connectez-vous pour accéder à vos services ARCenal."
+    test -n "$(arcenal_lire_reglage dashboard_news_title)" || arcenal_enregistrer_reglage dashboard_news_title "Bienvenue dans ARCenal"
+    test -n "$(arcenal_lire_reglage dashboard_news_content)" || arcenal_enregistrer_reglage dashboard_news_content "Votre espace personnel rassemble les services sélectionnés pour votre activité."
+    test -n "$(arcenal_lire_reglage dashboard_news_url)" || arcenal_enregistrer_reglage dashboard_news_url ""
 }
 
 arcenal_css_portail() {
@@ -106,6 +109,27 @@ arcenal_css_mise_en_page() {
     printf '%s\n' '#app-tiles { gap: 1.25rem; } #app-tiles .app-tile { padding: 1.5rem; }'
 }
 
+arcenal_fichier_identite_precedente() {
+    local domaine="$1"
+    printf '/etc/yunohost/apps/%s/portal-pre-arcenal-%s.json' "$app" "$domaine"
+}
+
+arcenal_sauvegarder_identite_portail() {
+    local domaine="$1"
+    local fichier
+    fichier="$(arcenal_fichier_identite_precedente "$domaine")"
+    test -f "$fichier" && return 0
+    yunohost domain config get "$domaine" feature.portal --export --output-as json > "$fichier"
+}
+
+arcenal_restaurer_identite_portail() {
+    local domaine="$1"
+    local fichier
+    fichier="$(arcenal_fichier_identite_precedente "$domaine")"
+    test -f "$fichier" || return 0
+    yunohost domain config set "$domaine" feature.portal --args-file "$fichier"
+}
+
 arcenal_appliquer_identite() {
     local domaine titre theme tuiles mise_en_page intro_utilisateur intro_public primaire accent
     domaine="$(arcenal_lire_reglage portal_domain)"
@@ -117,10 +141,80 @@ arcenal_appliquer_identite() {
     intro_public="$(arcenal_lire_reglage portal_public_intro)"
     primaire="$(arcenal_lire_reglage brand_primary)"
     accent="$(arcenal_lire_reglage brand_accent)"
+    arcenal_sauvegarder_identite_portail "$domaine"
     yunohost domain config set "$domaine" feature.portal.portal_title --value "$titre"
     yunohost domain config set "$domaine" feature.portal.portal_theme --value "$theme"
     yunohost domain config set "$domaine" feature.portal.portal_tile_theme --value "$tuiles"
     yunohost domain config set "$domaine" feature.portal.portal_user_intro --value "$intro_utilisateur"
     yunohost domain config set "$domaine" feature.portal.portal_public_intro --value "$intro_public"
     yunohost domain config set "$domaine" feature.portal.custom_css --value "$(arcenal_css_portail "$primaire" "$accent" "$mise_en_page")"
+}
+
+arcenal_repertoire_espace() {
+    printf '/var/www/%s' "$app"
+}
+
+arcenal_ecrire_configuration_espace() {
+    local repertoire fichier titre contenu lien theme
+    repertoire="$(arcenal_repertoire_espace)"
+    fichier="${repertoire}/configuration.json"
+    titre="$(arcenal_lire_reglage dashboard_news_title)"
+    contenu="$(arcenal_lire_reglage dashboard_news_content)"
+    lien="$(arcenal_lire_reglage dashboard_news_url)"
+    theme="$(arcenal_lire_reglage portal_theme)"
+    python3 - "$fichier" "$titre" "$contenu" "$lien" "$theme" <<'PY'
+import json
+import sys
+
+destination, title, content, url, theme = sys.argv[1:]
+with open(destination, "w", encoding="utf-8") as output:
+    json.dump({"newsTitle": title, "newsContent": content, "newsUrl": url, "theme": theme}, output, ensure_ascii=False)
+    output.write("\n")
+PY
+    chmod 0644 "$fichier"
+}
+
+arcenal_copier_espace() {
+    local repertoire
+    repertoire="$(arcenal_repertoire_espace)"
+    install -d -m 0755 -o root -g www-data "$repertoire"
+    install -m 0644 "${YNH_APP_BASEDIR}/www/index.html" "$repertoire/index.html"
+    install -m 0644 "${YNH_APP_BASEDIR}/www/arcenal.css" "$repertoire/arcenal.css"
+    install -m 0644 "${YNH_APP_BASEDIR}/www/app.js" "$repertoire/app.js"
+    install -m 0644 "${YNH_APP_BASEDIR}/www/logo-arcenal.svg" "$repertoire/logo-arcenal.svg"
+}
+
+arcenal_configurer_permission_espace() {
+    local domaine url
+    domaine="$(arcenal_lire_reglage portal_domain)"
+    url="${domaine}/espace-perso"
+    if ynh_permission_exists --permission=main; then
+        ynh_permission_url --permission=main --url="$url"
+        ynh_permission_update --permission=main --add=all_users
+        return 0
+    fi
+    ynh_permission_create --permission=main --url="$url" --allowed=all_users --show_tile=false
+}
+
+arcenal_configurer_nginx_espace() {
+    local domain path install_dir
+    domain="$(arcenal_lire_reglage portal_domain)"
+    path="/espace-perso"
+    install_dir="$(arcenal_repertoire_espace)"
+    ynh_config_add_nginx
+}
+
+arcenal_retirer_nginx_espace() {
+    local domain="$1"
+    local path="/espace-perso"
+    local install_dir
+    install_dir="$(arcenal_repertoire_espace)"
+    ynh_config_remove_nginx
+}
+
+arcenal_deployer_espace() {
+    arcenal_copier_espace
+    arcenal_ecrire_configuration_espace
+    arcenal_configurer_permission_espace
+    arcenal_configurer_nginx_espace
 }

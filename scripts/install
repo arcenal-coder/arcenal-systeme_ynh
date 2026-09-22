@@ -17,5 +17,7 @@ fi
 arcenal_ecrire_catalogue
 ynh_app_setting_set --key=catalogue_url --value="$catalogue_url"
 arcenal_initialiser_identite
+ynh_script_progression "Déploiement de l'espace personnel ARCenal..."
+arcenal_deployer_espace
 arcenal_actualiser_catalogue
 ynh_script_progression "Catalogue ARCenal stable activé."

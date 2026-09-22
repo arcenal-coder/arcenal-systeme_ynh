@@ -21,6 +21,9 @@ class ConfigPanelTest(unittest.TestCase):
         )
         self.assertEqual(portal["portal_theme"]["choices"], ["light", "system", "dark"])
         self.assertEqual(portal["portal_layout"]["choices"], ["confortable", "compact"])
+        dashboard = panel["identite"]["espace"]
+        self.assertEqual(dashboard["dashboard_news_url"]["type"], "url")
+        self.assertTrue(dashboard["dashboard_news_url"]["optional"])
 
     def test_config_script_only_uses_supported_portal_settings(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
@@ -30,6 +33,13 @@ class ConfigPanelTest(unittest.TestCase):
         self.assertIn("@media (prefers-reduced-motion: reduce)", script)
         self.assertNotIn('domain config set "$domaine" --key', script)
         self.assertNotIn("/etc/ssowat", script)
+
+    def test_portal_identity_is_restored_when_the_app_is_removed(self) -> None:
+        common = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
+        remove = (ROOT / "scripts" / "remove").read_text(encoding="utf-8")
+        self.assertIn("domain config get \"$domaine\" feature.portal --export", common)
+        self.assertIn("domain config set \"$domaine\" feature.portal --args-file", common)
+        self.assertIn("arcenal_restaurer_identite_portail", remove)
 
     def test_portal_layout_is_persisted_and_applied(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")

@@ -1,9 +1,13 @@
 #!/bin/bash
 
+source _common.sh
 source /usr/share/yunohost/helpers
 
 ynh_script_progression "Restauration du catalogue précédent..."
 catalogue_sauvegarde="/etc/yunohost/apps/${app}"
+arcenal_retirer_nginx_espace "$(arcenal_lire_reglage portal_domain)"
+arcenal_restaurer_identite_portail "$(arcenal_lire_reglage portal_domain)"
+ynh_secure_remove --file="$(arcenal_repertoire_espace)"
 if test -f "$catalogue_sauvegarde/catalogue-pre-arcenal.yml"; then
     cp --preserve=mode,timestamps "$catalogue_sauvegarde/catalogue-pre-arcenal.yml" /etc/yunohost/apps_catalog.yml
 else
