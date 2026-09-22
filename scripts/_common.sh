@@ -135,6 +135,10 @@ arcenal_repertoire_espace() {
     printf '/var/www/%s' "$app"
 }
 
+arcenal_repertoire_sources_espace() {
+    printf '/etc/yunohost/apps/%s/arcenal-assets' "$app"
+}
+
 arcenal_exiger_store() {
     test -d /etc/yunohost/apps/arcenal-store || ynh_die "Installez d'abord ARCenal Store, puis relancez l'installation d'ARCenal Système depuis le catalogue ARCenal."
 }
@@ -143,6 +147,7 @@ arcenal_ecrire_configuration_espace() {
     local repertoire fichier titre contenu lien theme
     repertoire="$(arcenal_repertoire_espace)"
     fichier="${repertoire}/configuration.json"
+    install -d -m 0755 -o root -g www-data "$repertoire"
     titre="$(arcenal_lire_reglage dashboard_news_title)"
     contenu="$(arcenal_lire_reglage dashboard_news_content)"
     lien="$(arcenal_lire_reglage dashboard_news_url)"
@@ -159,14 +164,25 @@ PY
     chmod 0644 "$fichier"
 }
 
-arcenal_copier_espace() {
+arcenal_archiver_sources_espace() {
     local repertoire
-    repertoire="$(arcenal_repertoire_espace)"
-    install -d -m 0755 -o root -g www-data "$repertoire"
+    repertoire="$(arcenal_repertoire_sources_espace)"
+    install -d -m 0755 "$repertoire"
     install -m 0644 "${YNH_APP_BASEDIR}/www/index.html" "$repertoire/index.html"
     install -m 0644 "${YNH_APP_BASEDIR}/www/arcenal.css" "$repertoire/arcenal.css"
     install -m 0644 "${YNH_APP_BASEDIR}/www/app.js" "$repertoire/app.js"
     install -m 0644 "${YNH_APP_BASEDIR}/www/logo-arcenal.svg" "$repertoire/logo-arcenal.svg"
+}
+
+arcenal_copier_espace() {
+    local repertoire sources
+    repertoire="$(arcenal_repertoire_espace)"
+    sources="$(arcenal_repertoire_sources_espace)"
+    install -d -m 0755 -o root -g www-data "$repertoire"
+    install -m 0644 "$sources/index.html" "$repertoire/index.html"
+    install -m 0644 "$sources/arcenal.css" "$repertoire/arcenal.css"
+    install -m 0644 "$sources/app.js" "$repertoire/app.js"
+    install -m 0644 "$sources/logo-arcenal.svg" "$repertoire/logo-arcenal.svg"
 }
 
 arcenal_configurer_nginx_espace() {
@@ -184,6 +200,7 @@ arcenal_retirer_nginx_espace() {
 }
 
 arcenal_deployer_espace() {
+    arcenal_archiver_sources_espace
     arcenal_copier_espace
     arcenal_ecrire_configuration_espace
     arcenal_configurer_nginx_espace

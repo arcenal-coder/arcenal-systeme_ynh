@@ -54,6 +54,17 @@ class ConfigPanelTest(unittest.TestCase):
         self.assertIn("arcenal_modifier_couleur brand_accent", script)
         self.assertIn('test -n "$valeur" || return 0', script)
 
+    def test_configuration_does_not_need_the_temporary_package_sources(self) -> None:
+        script = (ROOT / "scripts" / "config").read_text(encoding="utf-8")
+        self.assertIn("arcenal_ecrire_configuration_espace", script)
+        self.assertNotIn("arcenal_deployer_espace", script)
+
+    def test_deployment_preserves_assets_for_future_configuration_changes(self) -> None:
+        common = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
+        self.assertIn("arcenal_repertoire_sources_espace", common)
+        self.assertIn("arcenal_archiver_sources_espace", common)
+        self.assertIn("arcenal-assets", common)
+
     def test_install_domain_must_be_a_root_domain(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
         self.assertIn("yunohost domain list --exclude-subdomains --output-as json", script)

@@ -24,7 +24,7 @@ arcenal_modifier_reglage() {
     local valeur="$2"
     arcenal_enregistrer_reglage "$cle" "$valeur"
     arcenal_appliquer_identite
-    arcenal_deployer_espace
+    arcenal_ecrire_configuration_espace
 }
 
 arcenal_modifier_couleur() {
@@ -46,7 +46,7 @@ set__portal_logo() {
     local domaine
     domaine="$(arcenal_lire_reglage portal_domain)"
     test -z "$portal_logo" || yunohost domain config set "$domaine" feature.portal.portal_logo --value "$portal_logo"
-    arcenal_deployer_espace
+    arcenal_ecrire_configuration_espace
 }
 set__dashboard_news_title() { arcenal_modifier_reglage dashboard_news_title "$dashboard_news_title"; }
 set__dashboard_news_content() { arcenal_modifier_reglage dashboard_news_content "$dashboard_news_content"; }
