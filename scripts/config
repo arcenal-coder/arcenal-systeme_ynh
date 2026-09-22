@@ -41,7 +41,11 @@ set__portal_public_intro() { arcenal_modifier_reglage portal_public_intro "$port
 set__portal_logo() {
     local domaine
     domaine="$(arcenal_lire_reglage portal_domain)"
-    test -z "$portal_logo" || yunohost domain config set "$domaine" --key feature.portal.portal_logo --value "$portal_logo"
+    test -z "$portal_logo" || yunohost domain config set "$domaine" feature.portal.portal_logo --value "$portal_logo"
+}
+
+validate__portal_domain() {
+    arcenal_domaine_portail_est_racine "$portal_domain" || echo "Choisissez un domaine racine YunoHost."
 }
 
 ynh_app_config_run "$1"

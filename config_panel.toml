@@ -10,9 +10,10 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
     name.fr = "Portail connecté"
 
         [identite.portail.portal_domain]
-        ask.fr = "Domaine du portail"
+        ask.fr = "Domaine racine du portail"
         type = "domain"
         bind = "null"
+        help.fr = "Choisissez un domaine racine YunoHost, pas un sous-domaine."
 
         [identite.portail.portal_title]
         ask.fr = "Nom affiché"

@@ -32,23 +32,31 @@ arcenal_enregistrer_reglage() {
     ynh_app_setting_set --key="$cle" --value="$valeur"
 }
 
-arcenal_domaine_principal() {
-    yunohost domain main-domain --output-as json | python3 -c '
+arcenal_domaine_portail_par_defaut() {
+    yunohost domain list --exclude-subdomains --output-as json | python3 -c '
 import json
 import sys
 
-print(json.load(sys.stdin)["current_main_domain"])
+domains = json.load(sys.stdin)["domains"]
+print(domains[0])
 '
 }
 
+arcenal_domaine_portail_est_racine() {
+    local domaine="$1"
+    yunohost domain list --exclude-subdomains --output-as json | python3 -c '
+import json
+import sys
+
+raise SystemExit(0 if sys.argv[1] in json.load(sys.stdin)["domains"] else 1)
+' "$domaine"
+}
+
 arcenal_initialiser_identite() {
-    local domaine_principal domaine_portail
-    domaine_principal="$(arcenal_domaine_principal)"
+    local domaine_defaut domaine_portail
+    domaine_defaut="$(arcenal_domaine_portail_par_defaut)"
     domaine_portail="$(arcenal_lire_reglage portal_domain)"
-    if [[ "$domaine_portail" == "current_main_domain: "* ]]; then
-        arcenal_enregistrer_reglage portal_domain "$domaine_principal"
-    fi
-    test -n "$domaine_portail" || arcenal_enregistrer_reglage portal_domain "$domaine_principal"
+    arcenal_domaine_portail_est_racine "$domaine_portail" || arcenal_enregistrer_reglage portal_domain "$domaine_defaut"
     test -n "$(arcenal_lire_reglage portal_title)" || arcenal_enregistrer_reglage portal_title "ARCenal OS"
     test -n "$(arcenal_lire_reglage portal_theme)" || arcenal_enregistrer_reglage portal_theme "light"
     test -n "$(arcenal_lire_reglage portal_tile_theme)" || arcenal_enregistrer_reglage portal_tile_theme "descriptive"
@@ -79,10 +87,10 @@ arcenal_appliquer_identite() {
     intro_public="$(arcenal_lire_reglage portal_public_intro)"
     primaire="$(arcenal_lire_reglage brand_primary)"
     accent="$(arcenal_lire_reglage brand_accent)"
-    yunohost domain config set "$domaine" --key feature.portal.portal_title --value "$titre"
-    yunohost domain config set "$domaine" --key feature.portal.portal_theme --value "$theme"
-    yunohost domain config set "$domaine" --key feature.portal.portal_tile_theme --value "$tuiles"
-    yunohost domain config set "$domaine" --key feature.portal.portal_user_intro --value "$intro_utilisateur"
-    yunohost domain config set "$domaine" --key feature.portal.portal_public_intro --value "$intro_public"
-    yunohost domain config set "$domaine" --key feature.portal.custom_css --value "$(arcenal_css_portail "$primaire" "$accent")"
+    yunohost domain config set "$domaine" feature.portal.portal_title --value "$titre"
+    yunohost domain config set "$domaine" feature.portal.portal_theme --value "$theme"
+    yunohost domain config set "$domaine" feature.portal.portal_tile_theme --value "$tuiles"
+    yunohost domain config set "$domaine" feature.portal.portal_user_intro --value "$intro_utilisateur"
+    yunohost domain config set "$domaine" feature.portal.portal_public_intro --value "$intro_public"
+    yunohost domain config set "$domaine" feature.portal.custom_css --value "$(arcenal_css_portail "$primaire" "$accent")"
 }
