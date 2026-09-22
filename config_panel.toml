@@ -93,3 +93,20 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
         bind = "null"
         pattern.regexp = '^$|^https://[^[:space:]]+$'
         pattern.error.fr = "Utilisez une URL HTTPS ou laissez ce champ vide."
+
+    [identite.mises_a_jour]
+    name.fr = "Mises à jour ARCenal"
+    help.fr = "Seuls ARCenal Store et ARCenal Système sont mis à jour automatiquement après validation ARCenal."
+
+        [identite.mises_a_jour.update_policy]
+        ask.fr = "Mises à jour automatiques"
+        type = "select"
+        choices = ["automatic", "manual"]
+        bind = "null"
+
+        [identite.mises_a_jour.update_manifest_url]
+        ask.fr = "Source de diffusion ARCenal"
+        type = "url"
+        bind = "null"
+        pattern.regexp = '^https://[^[:space:]]+$'
+        pattern.error.fr = "Utilisez une URL HTTPS de diffusion ARCenal."

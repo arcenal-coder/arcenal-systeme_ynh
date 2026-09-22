@@ -1,0 +1,8 @@
+[Unit]
+Description=Mise à jour contrôlée ARCenal
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/arcenal-systeme/actualiser-arcenal

@@ -33,6 +33,18 @@ modifier l'identité du portail natif et le contenu de la dernière nouvelle.
 Le point d'entrée technique `/yunohost/sso/` reste nécessaire à la connexion
 native et ne doit pas être supprimé.
 
+## Diffusion et mises à jour ARCenal
+
+ARCenal Système vérifie quotidiennement la diffusion `stable` validée par
+ARCenal. Il met à jour uniquement ARCenal Store puis ARCenal Système, avec les
+sauvegardes pré-mise à jour natives de YunoHost. Il ne met jamais à jour le
+cœur YunoHost ni les applications métier.
+
+Dans le panneau « Mises à jour ARCenal », l'administrateur peut désactiver ce
+comportement (`manual`) ou remplacer l'URL HTTPS de diffusion. Les détails et
+les éventuelles erreurs sont disponibles dans le journal système
+`arcenal-systeme-update.service`.
+
 ### Migration depuis une version antérieure à 0.6
 
 Avant de mettre à jour une ancienne installation, installez d'abord ARCenal

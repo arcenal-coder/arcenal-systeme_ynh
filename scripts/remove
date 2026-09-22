@@ -3,6 +3,8 @@
 source "$(dirname "$0")/_common.sh"
 source /usr/share/yunohost/helpers
 
+arcenal_retirer_mise_a_jour
+
 ynh_script_progression "Retrait de l'espace personnel ARCenal..."
 arcenal_retirer_nginx_espace "$(arcenal_lire_reglage portal_domain)"
 arcenal_restaurer_identite_portail "$(arcenal_lire_reglage portal_domain)"

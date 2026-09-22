@@ -58,6 +58,8 @@ arcenal_initialiser_identite() {
     test -n "$(arcenal_lire_reglage dashboard_news_title)" || arcenal_enregistrer_reglage dashboard_news_title "Bienvenue dans ARCenal"
     test -n "$(arcenal_lire_reglage dashboard_news_content)" || arcenal_enregistrer_reglage dashboard_news_content "Votre espace personnel rassemble les services sélectionnés pour votre activité."
     test -n "$(arcenal_lire_reglage dashboard_news_url)" || arcenal_enregistrer_reglage dashboard_news_url ""
+    test -n "$(arcenal_lire_reglage update_policy)" || arcenal_enregistrer_reglage update_policy "automatic"
+    test -n "$(arcenal_lire_reglage update_manifest_url)" || arcenal_enregistrer_reglage update_manifest_url "https://raw.githubusercontent.com/arcenal-coder/arcenal-systeme-catalogue/main/stable/v1/release.json"
 }
 
 arcenal_css_portail() {
@@ -211,6 +213,43 @@ arcenal_configurer_nginx_espace() {
     local install_dir
     install_dir="$(arcenal_repertoire_espace)"
     ynh_config_add_nginx
+}
+
+arcenal_repertoire_mise_a_jour() {
+    printf '/usr/local/lib/%s' "$app"
+}
+
+arcenal_configurer_planification() {
+    local politique
+    politique="$(arcenal_lire_reglage update_policy)"
+    systemctl daemon-reload
+    if test "$politique" = "automatic"; then
+        systemctl enable --now "${app}-update.timer"
+        return 0
+    fi
+    systemctl disable --now "${app}-update.timer" 2>/dev/null || true
+}
+
+arcenal_deployer_mise_a_jour() {
+    local repertoire
+    repertoire="$(arcenal_repertoire_mise_a_jour)"
+    install -d -m 0755 "$repertoire"
+    sed "s/__APP__/${app}/g" "${YNH_APP_BASEDIR}/scripts/actualiser-arcenal" > "${repertoire}/actualiser-arcenal"
+    chmod 0755 "${repertoire}/actualiser-arcenal"
+    install -m 0644 "${YNH_APP_BASEDIR}/conf/${app}-update.service" "/etc/systemd/system/${app}-update.service"
+    install -m 0644 "${YNH_APP_BASEDIR}/conf/${app}-update.timer" "/etc/systemd/system/${app}-update.timer"
+    arcenal_configurer_planification
+}
+
+arcenal_retirer_mise_a_jour() {
+    local repertoire
+    repertoire="$(arcenal_repertoire_mise_a_jour)"
+    systemctl disable --now "${app}-update.timer" 2>/dev/null || true
+    systemctl stop "${app}-update.service" 2>/dev/null || true
+    rm -f "/etc/systemd/system/${app}-update.service" "/etc/systemd/system/${app}-update.timer"
+    rm -f "${repertoire}/actualiser-arcenal"
+    rmdir "$repertoire" 2>/dev/null || true
+    systemctl daemon-reload
 }
 
 arcenal_retirer_nginx_espace() {

@@ -1,0 +1,92 @@
+#!/bin/bash
+
+set -euo pipefail
+
+readonly APP="__APP__"
+readonly LOCK_FILE="/run/${APP}-update.lock"
+
+exec 9>"$LOCK_FILE"
+flock -n 9 || exit 0
+
+source /usr/share/yunohost/helpers
+
+obtenir_reglage() {
+    ynh_app_setting_get --app="$APP" --key="$1"
+}
+
+obtenir_cohorte() {
+    local cohorte
+    cohorte="$(obtenir_reglage update_cohort)"
+    if test -n "$cohorte"; then
+        printf '%s' "$cohorte"
+        return 0
+    fi
+    cohorte="$(cat /proc/sys/kernel/random/uuid)"
+    ynh_app_setting_set --app="$APP" --key=update_cohort --value="$cohorte"
+    printf '%s' "$cohorte"
+}
+
+est_dans_vague() {
+    local pourcentage="$1"
+    local graine="$2"
+    local cohorte empreinte valeur
+    cohorte="$(obtenir_cohorte)"
+    empreinte="$(printf '%s' "${graine}:${cohorte}" | sha256sum | cut -c1-8)"
+    valeur=$((16#$empreinte % 100))
+    test "$valeur" -lt "$pourcentage"
+}
+
+telecharger_diffusion() {
+    local url="$1"
+    [[ "$url" =~ ^https://[^[:space:]]+$ ]] || ynh_die "L'URL de diffusion ARCenal doit utiliser HTTPS."
+    curl --fail --silent --show-error --location --proto =https "$url"
+}
+
+valider_diffusion() {
+    local diffusion="$1"
+    jq -e '
+      .schema == "arcenal-release/v1"
+      and .channel == "stable"
+      and ((.rollout.percentage | type) == "number")
+      and (.rollout.percentage >= 0 and .rollout.percentage <= 100 and (.rollout.percentage | floor) == .rollout.percentage)
+      and ((.rollout.seed | type) == "string" and (.rollout.seed | length) > 0)
+      and (.applications | type == "object")
+      and ([(.applications | keys[])] | all(.[]; . == "arcenal-store" or . == "arcenal-systeme"))
+      and (all(.applications[]; (.revision | type) == "string" and test("^[0-9a-f]{40}$") and (.version | type) == "string" and length > 0))
+    ' >/dev/null <<<"$diffusion"
+}
+
+catalogue_correspond_a_diffusion() {
+    local diffusion="$1"
+    local paquet="$2"
+    local version revision
+    version="$(jq -r --arg paquet "$paquet" '.applications[$paquet].version' <<<"$diffusion")"
+    revision="$(jq -r --arg paquet "$paquet" '.applications[$paquet].revision' <<<"$diffusion")"
+    jq -e --arg paquet "$paquet" --arg version "$version" --arg revision "$revision" '
+      .apps[$paquet].manifest.version == $version
+      and .apps[$paquet].git.revision == $revision
+    ' /var/cache/yunohost/repo/arcenal.json >/dev/null
+}
+
+mettre_a_jour_paquet() {
+    local paquet="$1"
+    yunohost app upgrade "$paquet"
+}
+
+executer() {
+    local politique url diffusion pourcentage graine
+    politique="$(obtenir_reglage update_policy)"
+    test "$politique" = "automatic" || exit 0
+    url="$(obtenir_reglage update_manifest_url)"
+    diffusion="$(telecharger_diffusion "$url")"
+    valider_diffusion "$diffusion" || ynh_die "Le manifeste de diffusion ARCenal est invalide."
+    pourcentage="$(jq -r '.rollout.percentage' <<<"$diffusion")"
+    graine="$(jq -r '.rollout.seed' <<<"$diffusion")"
+    est_dans_vague "$pourcentage" "$graine" || exit 0
+    yunohost tools update
+    jq -e '.applications["arcenal-store"]' >/dev/null <<<"$diffusion" && catalogue_correspond_a_diffusion "$diffusion" arcenal-store && mettre_a_jour_paquet arcenal-store
+    yunohost tools update
+    jq -e '.applications["arcenal-systeme"]' >/dev/null <<<"$diffusion" && catalogue_correspond_a_diffusion "$diffusion" arcenal-systeme && mettre_a_jour_paquet arcenal-systeme
+}
+
+executer

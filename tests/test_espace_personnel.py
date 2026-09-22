@@ -107,6 +107,21 @@ console.log(JSON.stringify(results));'''
         self.assertIn("ynh_config_add_nginx", common)
         self.assertNotIn("/usr/share/yunohost/portal", common)
 
+    def test_controlled_updater_only_targets_arcenal_packages(self) -> None:
+        updater = (ROOT / "scripts" / "actualiser-arcenal").read_text(encoding="utf-8")
+        common = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
+        self.assertIn('readonly APP="__APP__"', updater)
+        self.assertIn('test "$politique" = "automatic"', updater)
+        self.assertIn('mettre_a_jour_paquet arcenal-store', updater)
+        self.assertIn('mettre_a_jour_paquet arcenal-systeme', updater)
+        self.assertIn("catalogue_correspond_a_diffusion", updater)
+        self.assertIn("/var/cache/yunohost/repo/arcenal.json", updater)
+        self.assertIn('git.revision == $revision', updater)
+        self.assertNotIn("tools upgrade system", updater)
+        self.assertIn("arcenal_deployer_mise_a_jour", common)
+        self.assertIn("arcenal_retirer_mise_a_jour", common)
+        self.assertIn('systemctl stop "${app}-update.service"', common)
+
     def test_dashboard_normalizes_native_urls_and_closes_the_session(self) -> None:
         script = (ROOT / "www" / "app.js").read_text(encoding="utf-8")
         self.assertIn("function applicationUrl", script)

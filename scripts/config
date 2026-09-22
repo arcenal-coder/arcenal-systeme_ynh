@@ -18,6 +18,8 @@ get__portal_logo() { echo YNH_NULL; }
 get__dashboard_news_title() { arcenal_lire_reglage dashboard_news_title; }
 get__dashboard_news_content() { arcenal_lire_reglage dashboard_news_content; }
 get__dashboard_news_url() { arcenal_lire_reglage dashboard_news_url; }
+get__update_policy() { arcenal_lire_reglage update_policy; }
+get__update_manifest_url() { arcenal_lire_reglage update_manifest_url; }
 
 arcenal_modifier_reglage() {
     local cle="$1"
@@ -52,5 +54,7 @@ set__portal_logo() {
 set__dashboard_news_title() { arcenal_modifier_reglage dashboard_news_title "$dashboard_news_title"; }
 set__dashboard_news_content() { arcenal_modifier_reglage dashboard_news_content "$dashboard_news_content"; }
 set__dashboard_news_url() { arcenal_modifier_reglage dashboard_news_url "$dashboard_news_url"; }
+set__update_policy() { arcenal_modifier_reglage update_policy "$update_policy"; arcenal_configurer_planification; }
+set__update_manifest_url() { arcenal_modifier_reglage update_manifest_url "$update_manifest_url"; }
 
 ynh_app_config_run "$1"

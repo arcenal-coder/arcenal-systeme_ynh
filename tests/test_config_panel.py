@@ -25,6 +25,9 @@ class ConfigPanelTest(unittest.TestCase):
         self.assertEqual(dashboard["dashboard_news_url"]["type"], "url")
         self.assertTrue(dashboard["dashboard_news_url"]["optional"])
         self.assertEqual(panel["identite"]["marque"]["brand_primary"]["ask"]["fr"], "Couleur dominante")
+        updates = panel["identite"]["mises_a_jour"]
+        self.assertEqual(updates["update_policy"]["choices"], ["automatic", "manual"])
+        self.assertEqual(updates["update_manifest_url"]["type"], "url")
 
     def test_config_script_only_uses_supported_portal_settings(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
@@ -74,6 +77,12 @@ arcenal_lire_couleur_yaml brand_primary '#202229' '''
         script = (ROOT / "scripts" / "config").read_text(encoding="utf-8")
         self.assertIn("arcenal_ecrire_configuration_espace", script)
         self.assertNotIn("arcenal_deployer_espace", script)
+
+    def test_configuration_controls_the_arcenal_update_timer(self) -> None:
+        config = (ROOT / "scripts" / "config").read_text(encoding="utf-8")
+        self.assertIn("set__update_policy()", config)
+        self.assertIn("arcenal_configurer_planification", config)
+        self.assertIn("set__update_manifest_url()", config)
 
     def test_deployment_preserves_assets_for_future_configuration_changes(self) -> None:
         common = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")

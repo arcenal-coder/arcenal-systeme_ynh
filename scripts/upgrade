@@ -8,4 +8,5 @@ arcenal_exiger_store
 arcenal_initialiser_identite
 ynh_script_progression "Mise à jour de l'espace personnel ARCenal..."
 arcenal_deployer_espace
+arcenal_deployer_mise_a_jour
 ynh_script_progression "Configuration ARCenal mise à jour."
