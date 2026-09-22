@@ -26,7 +26,7 @@ arcenal_modifier_reglage() {
 arcenal_modifier_couleur() {
     local cle="$1"
     local valeur="$2"
-    test -n "$valeur" || return
+    test -n "$valeur" || return 0
     arcenal_modifier_reglage "$cle" "$valeur"
 }
 

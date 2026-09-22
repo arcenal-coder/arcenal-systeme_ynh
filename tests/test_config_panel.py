@@ -32,6 +32,7 @@ class ConfigPanelTest(unittest.TestCase):
         script = (ROOT / "scripts" / "config").read_text(encoding="utf-8")
         self.assertIn("arcenal_modifier_couleur brand_primary", script)
         self.assertIn("arcenal_modifier_couleur brand_accent", script)
+        self.assertIn('test -n "$valeur" || return 0', script)
 
     def test_portal_domain_uses_root_domains(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
