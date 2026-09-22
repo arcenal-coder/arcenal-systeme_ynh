@@ -32,10 +32,23 @@ arcenal_enregistrer_reglage() {
     ynh_app_setting_set --key="$cle" --value="$valeur"
 }
 
+arcenal_domaine_principal() {
+    yunohost domain main-domain --output-as json | python3 -c '
+import json
+import sys
+
+print(json.load(sys.stdin)["current_main_domain"])
+'
+}
+
 arcenal_initialiser_identite() {
-    local domaine_principal
-    domaine_principal="$(yunohost domain main-domain)"
-    test -n "$(arcenal_lire_reglage portal_domain)" || arcenal_enregistrer_reglage portal_domain "$domaine_principal"
+    local domaine_principal domaine_portail
+    domaine_principal="$(arcenal_domaine_principal)"
+    domaine_portail="$(arcenal_lire_reglage portal_domain)"
+    if [[ "$domaine_portail" == "current_main_domain: "* ]]; then
+        arcenal_enregistrer_reglage portal_domain "$domaine_principal"
+    fi
+    test -n "$domaine_portail" || arcenal_enregistrer_reglage portal_domain "$domaine_principal"
     test -n "$(arcenal_lire_reglage portal_title)" || arcenal_enregistrer_reglage portal_title "ARCenal OS"
     test -n "$(arcenal_lire_reglage portal_theme)" || arcenal_enregistrer_reglage portal_theme "light"
     test -n "$(arcenal_lire_reglage portal_tile_theme)" || arcenal_enregistrer_reglage portal_tile_theme "descriptive"
