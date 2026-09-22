@@ -47,7 +47,7 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
     name.fr = "Couleurs ARCenal"
 
         [identite.marque.brand_primary]
-        ask.fr = "Couleur principale"
+        ask.fr = "Couleur dominante"
         type = "color"
         bind = "null"
 

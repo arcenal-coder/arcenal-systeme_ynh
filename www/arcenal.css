@@ -1,8 +1,10 @@
 :root {
+  --couleur-dominante: #1678ed;
+  --couleur-accent: #25c5cf;
   --encre: #102f68;
-  --bleu: #1678ed;
+  --bleu: var(--couleur-dominante);
   --bleu-clair: #dff4ff;
-  --turquoise: #25c5cf;
+  --turquoise: var(--couleur-accent);
   --fond: #d9f2ff;
   --surface: rgb(255 255 255 / 88%);
   --surface-franche: #fff;
@@ -19,10 +21,10 @@
 }
 
 html[data-theme="dark"] {
+  --couleur-dominante: #5bb8ff;
+  --couleur-accent: #64e2dd;
   --encre: #eff8ff;
-  --bleu: #5bb8ff;
   --bleu-clair: #143c6f;
-  --turquoise: #64e2dd;
   --fond: #071b39;
   --surface: rgb(13 48 89 / 90%);
   --surface-franche: #103765;
@@ -40,10 +42,10 @@ html[data-theme="dark"] {
 
 @media (prefers-color-scheme: dark) {
   html[data-theme="system"] {
+    --couleur-dominante: #5bb8ff;
+    --couleur-accent: #64e2dd;
     --encre: #eff8ff;
-    --bleu: #5bb8ff;
     --bleu-clair: #143c6f;
-    --turquoise: #64e2dd;
     --fond: #071b39;
     --surface: rgb(13 48 89 / 90%);
     --surface-franche: #103765;
@@ -124,13 +126,13 @@ h1 { position: relative; z-index: 1; margin-bottom: 12px; font-size: clamp(40px,
 .etat { margin-bottom: 20px; color: var(--secondaire); }
 .etat[hidden] { display: none; }
 .grille-applications { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
-.carte-application { position: relative; min-height: 198px; padding: 24px; overflow: hidden; background: var(--surface-franche); border: 1px solid rgb(210 235 255 / 74%); border-radius: 22px; box-shadow: var(--ombre-carte); }
+.carte-application { position: relative; min-height: 198px; overflow: hidden; background: var(--surface-franche); border: 1px solid rgb(210 235 255 / 74%); border-radius: 22px; box-shadow: var(--ombre-carte); }
 .carte-application::after { position: absolute; right: -36px; bottom: -44px; width: 120px; height: 120px; background: radial-gradient(circle, rgb(67 199 255 / 19%), transparent 68%); border-radius: 50%; content: ""; pointer-events: none; }
 .carte-application:hover, .carte-application:focus-within { border-color: rgb(41 157 238 / 42%); box-shadow: 0 20px 34px rgb(27 116 188 / 17%); transform: translateY(-4px); transition: transform 160ms ease, box-shadow 160ms ease; }
+.lien-application { position: relative; z-index: 1; display: block; min-height: 198px; padding: 24px; color: inherit; text-decoration: none; }
+.lien-application[aria-disabled="true"] { cursor: default; }
 .icone-application { position: relative; z-index: 1; width: 58px; height: 58px; margin-bottom: 22px; padding: 10px; object-fit: contain; background: var(--fond-icone); border-radius: 18px; box-shadow: 0 10px 18px rgb(47 145 215 / 14%); }
 .nom-application { position: relative; z-index: 1; margin: 0 34px 8px 0; font-size: 19px; letter-spacing: -.025em; }
-.nom-application a { text-decoration: none; }
-.nom-application a::after { position: absolute; inset: 0; content: ""; }
 .description-application { position: relative; z-index: 1; margin-bottom: 0; color: var(--secondaire); font-size: 14px; line-height: 1.5; }
 :focus-visible { outline: 3px solid var(--turquoise); outline-offset: 3px; }
 

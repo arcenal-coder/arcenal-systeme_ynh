@@ -26,8 +26,14 @@ function applicationUrl(value) {
   return safeUrl(source.includes("://") ? source : `https://${source.replace(/^\/+/, "")}`);
 }
 
-function imageUrl(value) {
-  return applicationUrl(value) || "logo-arcenal.svg";
+function catalogLogoUrl(value) {
+  const source = String(value || "").trim();
+  if (!source.startsWith("/yunohost/sso/applogos/")) return null;
+  const url = safeUrl(source);
+  if (!url) return null;
+  const parsed = new URL(url);
+  if (parsed.origin !== window.location.origin) return null;
+  return parsed.pathname.startsWith("/yunohost/sso/applogos/") ? url : null;
 }
 
 function localizedDescription(value) {
@@ -38,23 +44,29 @@ function localizedDescription(value) {
 
 function createApplication(app) {
   const item = document.createElement("li");
+  const link = document.createElement("a");
   const image = document.createElement("img");
   const title = document.createElement("h3");
-  const link = document.createElement("a");
   const description = document.createElement("p");
   const href = applicationUrl(app.url);
+  const logo = catalogLogoUrl(app.logo);
+  const label = String(app.label || "Application");
   item.className = "carte-application";
-  image.className = "icone-application";
-  image.src = imageUrl(app.logo);
-  image.alt = "";
-  title.className = "nom-application";
+  link.className = "lien-application";
   link.href = href || "#";
-  link.textContent = String(app.label || "Application");
+  link.textContent = "";
   if (!href) link.setAttribute("aria-disabled", "true");
+  image.className = "icone-application";
+  image.alt = "";
+  image.hidden = !logo;
+  if (logo) image.src = logo;
+  image.addEventListener("error", () => { image.hidden = true; });
+  title.className = "nom-application";
+  title.textContent = label;
   description.className = "description-application";
   description.textContent = localizedDescription(app.description);
-  title.append(link);
-  item.append(image, title, description);
+  link.append(image, title, description);
+  item.append(link);
   return item;
 }
 
@@ -81,6 +93,13 @@ function renderNews(configuration) {
 function applyTheme(configuration) {
   const theme = ["light", "dark", "system"].includes(configuration.theme) ? configuration.theme : "system";
   document.documentElement.dataset.theme = theme;
+  applyBrandColor("--couleur-dominante", configuration.primaryColor);
+  applyBrandColor("--couleur-accent", configuration.accentColor);
+}
+
+function applyBrandColor(variable, color) {
+  if (!/^#[0-9a-f]{6}$/i.test(String(color || ""))) return;
+  document.documentElement.style.setProperty(variable, color);
 }
 
 function renderIdentity(settings, user) {

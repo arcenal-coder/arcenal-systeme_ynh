@@ -144,7 +144,7 @@ arcenal_exiger_store() {
 }
 
 arcenal_ecrire_configuration_espace() {
-    local repertoire fichier titre contenu lien theme
+    local repertoire fichier titre contenu lien theme primaire accent
     repertoire="$(arcenal_repertoire_espace)"
     fichier="${repertoire}/configuration.json"
     install -d -m 0755 -o root -g www-data "$repertoire"
@@ -152,13 +152,26 @@ arcenal_ecrire_configuration_espace() {
     contenu="$(arcenal_lire_reglage dashboard_news_content)"
     lien="$(arcenal_lire_reglage dashboard_news_url)"
     theme="$(arcenal_lire_reglage portal_theme)"
-    python3 - "$fichier" "$titre" "$contenu" "$lien" "$theme" <<'PY'
+    primaire="$(arcenal_lire_reglage brand_primary)"
+    accent="$(arcenal_lire_reglage brand_accent)"
+    python3 - "$fichier" "$titre" "$contenu" "$lien" "$theme" "$primaire" "$accent" <<'PY'
 import json
 import sys
 
-destination, title, content, url, theme = sys.argv[1:]
+destination, title, content, url, theme, primary_color, accent_color = sys.argv[1:]
 with open(destination, "w", encoding="utf-8") as output:
-    json.dump({"newsTitle": title, "newsContent": content, "newsUrl": url, "theme": theme}, output, ensure_ascii=False)
+    json.dump(
+        {
+            "newsTitle": title,
+            "newsContent": content,
+            "newsUrl": url,
+            "theme": theme,
+            "primaryColor": primary_color,
+            "accentColor": accent_color,
+        },
+        output,
+        ensure_ascii=False,
+    )
     output.write("\n")
 PY
     chmod 0644 "$fichier"

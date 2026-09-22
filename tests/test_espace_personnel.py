@@ -39,9 +39,41 @@ class EspacePersonnelTest(unittest.TestCase):
     def test_dashboard_uses_the_soft_blue_floating_card_design(self) -> None:
         style = (ROOT / "www" / "arcenal.css").read_text(encoding="utf-8")
         self.assertIn("--bleu", style)
+        self.assertIn("--couleur-dominante", style)
+        self.assertIn("--couleur-accent", style)
         self.assertIn("linear-gradient", style)
         self.assertIn("border-radius: 28px", style)
         self.assertIn("backdrop-filter: blur", style)
+
+    def test_dashboard_uses_catalog_logos_and_full_card_links(self) -> None:
+        script = (ROOT / "www" / "app.js").read_text(encoding="utf-8")
+        style = (ROOT / "www" / "arcenal.css").read_text(encoding="utf-8")
+        self.assertIn('source.startsWith("/yunohost/sso/applogos/")', script)
+        self.assertNotIn('"logo-arcenal.svg"', script)
+        self.assertIn('link.className = "lien-application"', script)
+        self.assertIn("link.append(image, title, description)", script)
+        self.assertIn(".lien-application {", style)
+        self.assertIn("min-height: 198px", style)
+
+    def test_catalog_logo_urls_reject_path_traversal(self) -> None:
+        script = (ROOT / "www" / "app.js").read_text(encoding="utf-8")
+        helpers = script.split("function localizedDescription", maxsplit=1)[0]
+        command = f'''global.window = {{ location: {{ origin: "https://arcenal.test" }} }};
+{helpers}
+const results = [
+  catalogLogoUrl("/yunohost/sso/applogos/logo.png"),
+  catalogLogoUrl("/yunohost/sso/applogos/../portalapi/me"),
+  catalogLogoUrl("/yunohost/sso/applogos/%2e%2e/portalapi/me"),
+];
+console.log(JSON.stringify(results));'''
+        result = run(["node", "-e", command], check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(result.stdout), ["https://arcenal.test/yunohost/sso/applogos/logo.png", None, None])
+
+    def test_dashboard_applies_validated_brand_colours(self) -> None:
+        script = (ROOT / "www" / "app.js").read_text(encoding="utf-8")
+        self.assertIn('applyBrandColor("--couleur-dominante", configuration.primaryColor)', script)
+        self.assertIn('applyBrandColor("--couleur-accent", configuration.accentColor)', script)
+        self.assertIn("/^#[0-9a-f]{6}$/i", script)
 
     def test_nginx_uses_the_private_dashboard_path(self) -> None:
         nginx = (ROOT / "conf" / "nginx.conf").read_text(encoding="utf-8")
@@ -106,6 +138,8 @@ ynh_app_setting_get() {{
     *=dashboard_news_title) printf '%s' 'Nouvelle "prioritaire"' ;;
     *=dashboard_news_content) printf '%s' 'Texte avec <balise>' ;;
     *=portal_theme) printf '%s' 'system' ;;
+    *=brand_primary) printf '%s' '#123456' ;;
+    *=brand_accent) printf '%s' '#abcdef' ;;
     *) printf '%s' 'https://example.test/actualite' ;;
   esac
 }}
@@ -116,6 +150,8 @@ arcenal_ecrire_configuration_espace'''
         self.assertEqual(configuration["newsTitle"], 'Nouvelle "prioritaire"')
         self.assertEqual(configuration["newsContent"], "Texte avec <balise>")
         self.assertEqual(configuration["theme"], "system")
+        self.assertEqual(configuration["primaryColor"], "#123456")
+        self.assertEqual(configuration["accentColor"], "#abcdef")
 
 
 if __name__ == "__main__":

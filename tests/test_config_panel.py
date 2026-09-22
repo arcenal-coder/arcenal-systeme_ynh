@@ -23,6 +23,7 @@ class ConfigPanelTest(unittest.TestCase):
         dashboard = panel["identite"]["espace"]
         self.assertEqual(dashboard["dashboard_news_url"]["type"], "url")
         self.assertTrue(dashboard["dashboard_news_url"]["optional"])
+        self.assertEqual(panel["identite"]["marque"]["brand_primary"]["ask"]["fr"], "Couleur dominante")
 
     def test_config_script_only_uses_supported_portal_settings(self) -> None:
         script = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")
