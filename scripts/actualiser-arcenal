@@ -73,6 +73,14 @@ mettre_a_jour_paquet() {
     yunohost app upgrade "$paquet"
 }
 
+mettre_a_jour_si_diffuse() {
+    local diffusion="$1"
+    local paquet="$2"
+    jq -e --arg paquet "$paquet" '.applications[$paquet]' >/dev/null <<<"$diffusion" || return 0
+    catalogue_correspond_a_diffusion "$diffusion" "$paquet" || ynh_die "Le catalogue ARCenal ne correspond pas à la diffusion validée pour ${paquet}."
+    mettre_a_jour_paquet "$paquet"
+}
+
 executer() {
     local politique url diffusion pourcentage graine
     politique="$(obtenir_reglage update_policy)"
@@ -83,10 +91,10 @@ executer() {
     pourcentage="$(jq -r '.rollout.percentage' <<<"$diffusion")"
     graine="$(jq -r '.rollout.seed' <<<"$diffusion")"
     est_dans_vague "$pourcentage" "$graine" || exit 0
-    yunohost tools update
-    jq -e '.applications["arcenal-store"]' >/dev/null <<<"$diffusion" && catalogue_correspond_a_diffusion "$diffusion" arcenal-store && mettre_a_jour_paquet arcenal-store
-    yunohost tools update
-    jq -e '.applications["arcenal-systeme"]' >/dev/null <<<"$diffusion" && catalogue_correspond_a_diffusion "$diffusion" arcenal-systeme && mettre_a_jour_paquet arcenal-systeme
+    yunohost tools update apps
+    mettre_a_jour_si_diffuse "$diffusion" arcenal-store
+    yunohost tools update apps
+    mettre_a_jour_si_diffuse "$diffusion" arcenal-systeme
 }
 
 executer
