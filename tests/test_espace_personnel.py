@@ -47,6 +47,10 @@ class EspacePersonnelTest(unittest.TestCase):
         nginx = (ROOT / "conf" / "nginx.conf").read_text(encoding="utf-8")
         self.assertIn("location __PATH__/", nginx)
         self.assertIn("alias __INSTALL_DIR__/;", nginx)
+        self.assertIn("location = /yunohost/sso/", nginx)
+        self.assertIn('if ($arg_r = "")', nginx)
+        self.assertIn("alias /usr/share/yunohost/portal/;", nginx)
+        self.assertIn("Content-Security-Policy", nginx)
         self.assertNotIn("location /yunohost", nginx)
 
     def test_manifest_declares_the_dashboard_as_a_native_web_application(self) -> None:
@@ -76,6 +80,8 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertNotIn('method: "POST"', script)
         self.assertIn('fetch(`${apiBase}/logout`, { credentials: "include"', script)
         self.assertIn("if (!response.ok) throw new Error", script)
+        self.assertIn("window.btoa(destination)", script)
+        self.assertIn("/yunohost/sso/login?r=${encodeURIComponent(redirect)}", script)
         self.assertNotIn("finally", script)
 
     def test_upgrade_backup_skips_resources_that_do_not_exist_yet(self) -> None:
