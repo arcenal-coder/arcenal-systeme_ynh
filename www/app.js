@@ -117,24 +117,8 @@ async function initializeDashboard() {
   }
 }
 
-async function logout() {
-  const button = element("deconnexion");
-  try {
-    button.disabled = true;
-    const response = await fetch(`${apiBase}/logout`, {
-      credentials: "include",
-      cache: "no-store",
-      redirect: "manual",
-    });
-    if (response.status >= 400) throw new Error("Déconnexion impossible");
-    const destination = `${window.location.origin}/espace-perso/`;
-    const redirect = window.btoa(destination);
-    window.location.replace(`/yunohost/sso/login?r=${encodeURIComponent(redirect)}`);
-  } catch (_) {
-    button.disabled = false;
-    element("etat-applications").hidden = false;
-    element("etat-applications").textContent = "La déconnexion n'a pas abouti. Réessayez dans un instant.";
-  }
+function logout() {
+  window.location.assign("/espace-perso/deconnexion");
 }
 
 element("deconnexion").addEventListener("click", logout);

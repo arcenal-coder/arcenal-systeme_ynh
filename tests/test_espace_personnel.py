@@ -51,6 +51,9 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn('if ($arg_r = "")', nginx)
         self.assertIn("alias /usr/share/yunohost/portal/;", nginx)
         self.assertIn("Content-Security-Policy", nginx)
+        self.assertIn("location = __PATH__/deconnexion", nginx)
+        self.assertIn("Set-Cookie", nginx)
+        self.assertIn("yunohost.portal=", nginx)
         self.assertNotIn("location /yunohost", nginx)
 
     def test_manifest_declares_the_dashboard_as_a_native_web_application(self) -> None:
@@ -78,12 +81,8 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn("function applicationUrl", script)
         self.assertIn("function localizedDescription", script)
         self.assertNotIn('method: "POST"', script)
-        self.assertIn('fetch(`${apiBase}/logout`, {', script)
-        self.assertIn('redirect: "manual"', script)
-        self.assertIn("if (response.status >= 400) throw new Error", script)
-        self.assertIn("window.btoa(destination)", script)
-        self.assertIn("window.location.replace(`/yunohost/sso/login?r=${encodeURIComponent(redirect)}`)", script)
-        self.assertNotIn("finally", script)
+        self.assertIn('window.location.assign("/espace-perso/deconnexion")', script)
+        self.assertNotIn("portalapi/logout", script)
 
     def test_upgrade_backup_skips_resources_that_do_not_exist_yet(self) -> None:
         backup = (ROOT / "scripts" / "backup").read_text(encoding="utf-8")
