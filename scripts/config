@@ -1,0 +1,40 @@
+#!/bin/bash
+
+source _common.sh
+source /usr/share/yunohost/helpers
+
+ynh_abort_if_errors
+arcenal_initialiser_identite
+
+get__portal_domain() { arcenal_lire_reglage portal_domain; }
+get__portal_title() { arcenal_lire_reglage portal_title; }
+get__portal_theme() { arcenal_lire_reglage portal_theme; }
+get__portal_tile_theme() { arcenal_lire_reglage portal_tile_theme; }
+get__brand_primary() { arcenal_lire_reglage brand_primary; }
+get__brand_accent() { arcenal_lire_reglage brand_accent; }
+get__portal_user_intro() { arcenal_lire_reglage portal_user_intro; }
+get__portal_public_intro() { arcenal_lire_reglage portal_public_intro; }
+get__portal_logo() { echo YNH_NULL; }
+
+arcenal_modifier_reglage() {
+    local cle="$1"
+    local valeur="$2"
+    arcenal_enregistrer_reglage "$cle" "$valeur"
+    arcenal_appliquer_identite
+}
+
+set__portal_domain() { arcenal_modifier_reglage portal_domain "$portal_domain"; }
+set__portal_title() { arcenal_modifier_reglage portal_title "$portal_title"; }
+set__portal_theme() { arcenal_modifier_reglage portal_theme "$portal_theme"; }
+set__portal_tile_theme() { arcenal_modifier_reglage portal_tile_theme "$portal_tile_theme"; }
+set__brand_primary() { arcenal_modifier_reglage brand_primary "$brand_primary"; }
+set__brand_accent() { arcenal_modifier_reglage brand_accent "$brand_accent"; }
+set__portal_user_intro() { arcenal_modifier_reglage portal_user_intro "$portal_user_intro"; }
+set__portal_public_intro() { arcenal_modifier_reglage portal_public_intro "$portal_public_intro"; }
+set__portal_logo() {
+    local domaine
+    domaine="$(arcenal_lire_reglage portal_domain)"
+    test -z "$portal_logo" || yunohost domain config set "$domaine" feature.portal.portal_logo --value "$portal_logo"
+}
+
+ynh_app_config_run "$1"

@@ -1,0 +1,68 @@
+#:schema https://raw.githubusercontent.com/YunoHost/apps/main/schemas/config_panel.v1.schema.json
+version = "1.0"
+
+[identite]
+name.fr = "Identité ARCenal"
+name.en = "ARCenal identity"
+help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du domaine choisi."
+
+    [identite.portail]
+    name.fr = "Portail connecté"
+
+        [identite.portail.portal_domain]
+        ask.fr = "Domaine du portail"
+        type = "domain"
+        bind = "null"
+
+        [identite.portail.portal_title]
+        ask.fr = "Nom affiché"
+        type = "string"
+        bind = "null"
+        pattern.regexp = '^.{2,80}$'
+        pattern.error.fr = "Le nom doit contenir entre 2 et 80 caractères."
+
+        [identite.portail.portal_logo]
+        ask.fr = "Logo"
+        help.fr = "SVG, PNG ou JPEG. Laissez vide pour conserver le logo actuel."
+        type = "file"
+        accept = ".svg,.png,.jpg,.jpeg"
+        optional = true
+        bind = "null"
+
+        [identite.portail.portal_theme]
+        ask.fr = "Thème de base"
+        type = "select"
+        choices = ["light", "system", "dark"]
+        bind = "null"
+
+        [identite.portail.portal_tile_theme]
+        ask.fr = "Présentation des applications"
+        type = "select"
+        choices = ["descriptive", "simple", "periodic"]
+        bind = "null"
+
+    [identite.marque]
+    name.fr = "Couleurs ARCenal"
+
+        [identite.marque.brand_primary]
+        ask.fr = "Couleur principale"
+        type = "color"
+        bind = "null"
+
+        [identite.marque.brand_accent]
+        ask.fr = "Couleur d'accent"
+        type = "color"
+        bind = "null"
+
+    [identite.messages]
+    name.fr = "Messages d'accueil"
+
+        [identite.messages.portal_user_intro]
+        ask.fr = "Message après connexion"
+        type = "text"
+        bind = "null"
+
+        [identite.messages.portal_public_intro]
+        ask.fr = "Message avant connexion"
+        type = "text"
+        bind = "null"
