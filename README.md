@@ -33,6 +33,16 @@ modifier l'identité du portail natif et le contenu de la dernière nouvelle.
 Le point d'entrée technique `/yunohost/sso/` reste nécessaire à la connexion
 native et ne doit pas être supprimé.
 
+### Apparence Gratitude
+
+L'espace personnel utilise le thème commun **Gratitude amélioré** : fond crème
+et vert léger, cartes ivoire, accents terre cuite et ombres douces. Les modes
+Clair, Sombre et Système suivent le réglage du panneau « Identité ARCenal ».
+Les couleurs personnalisées déjà enregistrées sont conservées ; les nouvelles
+installations utilisent la palette Gratitude par défaut. Le logo de
+l'organisation, les applications autorisées et l'accès Administration restent
+pilotés par YunoHost.
+
 ## Diffusion et mises à jour ARCenal
 
 ARCenal Système vérifie quotidiennement la diffusion `stable` validée par

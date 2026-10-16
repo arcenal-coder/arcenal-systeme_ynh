@@ -36,16 +36,17 @@ class EspacePersonnelTest(unittest.TestCase):
         self.assertIn("prefers-color-scheme: dark", style)
         self.assertIn("applyTheme(configuration)", script)
 
-    def test_dashboard_uses_the_soft_blue_floating_card_design(self) -> None:
+    def test_dashboard_uses_the_shared_gratitude_design(self) -> None:
         style = (ROOT / "www" / "arcenal.css").read_text(encoding="utf-8")
-        self.assertIn("--bleu", style)
-        self.assertIn("--couleur-dominante", style)
-        self.assertIn("--couleur-accent", style)
-        self.assertIn("color-mix(in srgb, var(--couleur-dominante)", style)
-        self.assertIn("color-mix(in srgb, var(--couleur-accent)", style)
+        self.assertIn("--arc-background: #fff9ef", style)
+        self.assertIn("--arc-background-tint: #f3faf4", style)
+        self.assertIn("--arc-primary: #b84b2c", style)
+        self.assertIn("--arc-background: #17191e", style)
+        self.assertIn("--arc-primary: #e47a55", style)
         self.assertIn("linear-gradient", style)
-        self.assertIn("border-radius: 28px", style)
-        self.assertIn("backdrop-filter: blur", style)
+        self.assertIn("border-radius: 18px", style)
+        self.assertIn("outline: 3px solid var(--arc-focus)", style)
+        self.assertIn("[hidden] { display: none !important; }", style)
 
     def test_dashboard_uses_catalog_logos_and_full_card_links(self) -> None:
         script = (ROOT / "www" / "app.js").read_text(encoding="utf-8")
@@ -76,6 +77,29 @@ console.log(JSON.stringify(results));'''
         self.assertIn('applyBrandColor("--couleur-dominante", configuration.primaryColor)', script)
         self.assertIn('applyBrandColor("--couleur-accent", configuration.accentColor)', script)
         self.assertIn("/^#[0-9a-f]{6}$/i", script)
+
+    def test_gratitude_defaults_adapt_and_custom_colours_can_be_reset(self) -> None:
+        script = (ROOT / "www" / "app.js").read_text(encoding="utf-8")
+        helpers = script.split("function renderIdentity", maxsplit=1)[0]
+        command = f'''const colours = {{}};
+global.document = {{ documentElement: {{ dataset: {{}}, style: {{
+  setProperty: (key, value) => colours[key] = value,
+  removeProperty: (key) => delete colours[key],
+}} }} }};
+{helpers}
+applyTheme({{theme: "dark", primaryColor: "#123456", accentColor: "#abcdef"}});
+const custom = {{...colours}};
+applyTheme({{theme: "system", primaryColor: "#B84B2C", accentColor: "#D45D36"}});
+const defaults = {{...colours}};
+applyTheme({{theme: "unknown", primaryColor: "invalid", accentColor: "red"}});
+console.log(JSON.stringify({{custom, defaults, invalid: colours,
+  theme: document.documentElement.dataset.theme}}));'''
+        result = run(["node", "-e", command], check=True, capture_output=True, text=True)
+        actual = json.loads(result.stdout)
+        self.assertEqual(actual["custom"], {"--couleur-dominante": "#123456", "--couleur-accent": "#abcdef"})
+        self.assertEqual(actual["defaults"], {})
+        self.assertEqual(actual["invalid"], {})
+        self.assertEqual(actual["theme"], "system")
 
     def test_nginx_uses_the_private_dashboard_path(self) -> None:
         nginx = (ROOT / "conf" / "nginx.conf").read_text(encoding="utf-8")

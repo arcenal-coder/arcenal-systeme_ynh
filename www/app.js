@@ -93,8 +93,15 @@ function renderNews(configuration) {
 function applyTheme(configuration) {
   const theme = ["light", "dark", "system"].includes(configuration.theme) ? configuration.theme : "system";
   document.documentElement.dataset.theme = theme;
-  applyBrandColor("--couleur-dominante", configuration.primaryColor);
-  applyBrandColor("--couleur-accent", configuration.accentColor);
+  // Default Gratitude colours are supplied by CSS so dark/system can adapt.
+  document.documentElement.style.removeProperty("--couleur-dominante");
+  document.documentElement.style.removeProperty("--couleur-accent");
+  if (String(configuration.primaryColor).toLowerCase() !== "#b84b2c") {
+    applyBrandColor("--couleur-dominante", configuration.primaryColor);
+  }
+  if (String(configuration.accentColor).toLowerCase() !== "#d45d36") {
+    applyBrandColor("--couleur-accent", configuration.accentColor);
+  }
 }
 
 function applyBrandColor(variable, color) {
