@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import re
 import tomllib
 import unittest
 from pathlib import Path
@@ -37,6 +39,37 @@ class ConfigPanelTest(unittest.TestCase):
         self.assertIn("@media (prefers-reduced-motion: reduce)", script)
         self.assertNotIn('domain config set "$domaine" --key', script)
         self.assertNotIn("/etc/ssowat", script)
+
+    def test_https_url_patterns_work_in_python_and_javascript(self) -> None:
+        panel = tomllib.loads((ROOT / "config_panel.toml").read_text(encoding="utf-8"))["identite"]
+        fields = (
+            (panel["mises_a_jour"]["update_manifest_url"], False),
+            (panel["espace"]["dashboard_news_url"], True),
+        )
+        for field, optional in fields:
+            cases = [
+                ("https://raw.githubusercontent.com/arcenal-coder/arcenal-systeme-catalogue/main/stable/v1/release.json", True),
+                ("https://raw.githubusercontent.com/arcenal-coder/arcenal-systeme-catalogue/main/preview/v1/release.json", True),
+                ("https://example.test/actualite", True),
+                ("", optional),
+                ("http://example.test/release.json", False),
+                ("https://", False),
+                ("https://example.test/a b", False),
+                ("https://example.test/a\tb", False),
+                ("https://example.test/a\nb", False),
+            ]
+            pattern = field["pattern"]["regexp"]
+            for value, expected in cases:
+                with self.subTest(pattern=pattern, value=value, engine="python"):
+                    self.assertEqual(bool(re.match(pattern, value)), expected)
+            result = run(
+                ["node", "-e", '''const fs = require("fs");
+const {pattern, values} = JSON.parse(fs.readFileSync(0, "utf8"));
+console.log(JSON.stringify(values.map(value => new RegExp(pattern).test(value))));'''],
+                input=json.dumps({"pattern": pattern, "values": [value for value, _ in cases]}),
+                check=True, capture_output=True, text=True,
+            )
+            self.assertEqual(json.loads(result.stdout), [expected for _, expected in cases])
 
     def test_portal_identity_is_restored_when_the_app_is_removed(self) -> None:
         common = (ROOT / "scripts" / "_common.sh").read_text(encoding="utf-8")

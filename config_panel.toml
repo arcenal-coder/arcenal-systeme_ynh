@@ -91,7 +91,7 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
         type = "url"
         optional = true
         bind = "null"
-        pattern.regexp = '^$|^https://[^[:space:]]+$'
+        pattern.regexp = '^$|^https://\S+$'
         pattern.error.fr = "Utilisez une URL HTTPS ou laissez ce champ vide."
 
     [identite.mises_a_jour]
@@ -108,5 +108,5 @@ help.fr = "Ces réglages personnalisent le portail utilisateur natif YunoHost du
         ask.fr = "Source de diffusion ARCenal"
         type = "url"
         bind = "null"
-        pattern.regexp = '^https://[^[:space:]]+$'
+        pattern.regexp = '^https://\S+$'
         pattern.error.fr = "Utilisez une URL HTTPS de diffusion ARCenal."
